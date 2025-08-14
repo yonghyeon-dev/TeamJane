@@ -1,0 +1,407 @@
+# Weave UI Components 사용 규칙
+
+## 🎯 목표
+이 프로젝트에서는 반드시 Weave UI Components를 사용하여 일관된 디자인 시스템을 유지합니다.
+
+## 📋 필수 사용 컴포넌트
+
+### 기본 UI 컴포넌트
+- **Button**: 모든 버튼은 `@/components/ui/Button`을 사용
+  - variant: "primary" | "secondary" | "ghost" | "danger" | "gradient"
+  - size: "sm" | "md" | "lg"
+  - loading, disabled, asChild props 지원
+
+- **Badge**: 상태 표시는 `@/components/ui/Badge`를 사용
+  - variant: "primary" | "secondary" | "accent" | "outline" | "destructive"
+  - size: "sm" | "md" | "lg"
+
+- **Input**: 모든 입력 필드는 `@/components/ui/Input`을 사용
+  - type, placeholder, disabled props 지원
+
+- **Avatar**: 사용자 아바타는 `@/components/ui/Avatar`를 사용
+  - size: "sm" | "md" | "lg" | "xl"
+
+- **Status**: 상태 표시는 `@/components/ui/Status`를 사용
+  - type: "success" | "warning" | "error" | "info" | "progress"
+  - variant: "badge" | "pill" | "dot"
+
+- **Typography**: 텍스트 스타일링은 `@/components/ui/Typography`를 사용
+  - variant: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span" | "div"
+  - size: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" | "4xl"
+
+### 레이아웃 컴포넌트
+- **Navbar**: 네비게이션 바는 `@/components/ui/Navbar`를 사용
+- **Footer**: 푸터는 `@/components/ui/Footer`를 사용
+- **Hero**: 히어로 섹션은 `@/components/ui/Hero`를 사용
+
+### 테마 컴포넌트
+- **ThemeSelector**: 테마 선택은 `@/components/ui/ThemeSelector`를 사용
+- **ColorSelector**: 색상 팔레트 선택은 `@/components/ui/ColorSelector`를 사용
+
+## 🚫 금지사항
+
+### HTML 태그 직접 사용 금지
+```tsx
+// ❌ 금지
+<button className="bg-blue-500 text-white px-4 py-2 rounded">
+  Click me
+</button>
+
+// ✅ 올바른 사용
+import { Button } from "@/components/ui/Button";
+<Button variant="primary">Click me</Button>
+```
+
+### 기본 HTML 입력 필드 금지
+```tsx
+// ❌ 금지
+<input type="text" placeholder="Enter name" className="border p-2" />
+
+// ✅ 올바른 사용
+import { Input } from "@/components/ui/Input";
+<Input placeholder="Enter name" />
+```
+
+### 커스텀 배지 스타일 금지
+```tsx
+// ❌ 금지
+<span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
+  Success
+</span>
+
+// ✅ 올바른 사용
+import { Badge } from "@/components/ui/Badge";
+<Badge variant="primary">Success</Badge>
+```
+
+## ✅ 올바른 사용 예제
+
+### 기본 페이지 구조
+```tsx
+"use client";
+
+import { ClientThemeProvider } from "@/lib/theme/ClientThemeProvider";
+import { Button, Badge, Input } from "@/components/ui";
+
+export default function MyPage() {
+  return (
+    <ClientThemeProvider>
+      <div className="min-h-screen bg-primary-background text-text-primary">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-4xl font-bold mb-8">My Page</h1>
+          
+          <div className="space-y-4">
+            <Button variant="primary">Primary Action</Button>
+            <Button variant="secondary">Secondary Action</Button>
+            
+            <Badge variant="success">Success Status</Badge>
+            <Badge variant="warning">Warning Status</Badge>
+            
+            <Input placeholder="Enter your name" />
+            <Input placeholder="Enter your email" type="email" />
+          </div>
+        </div>
+      </div>
+    </ClientThemeProvider>
+  );
+}
+```
+
+### 폼 컴포넌트
+```tsx
+import { Button, Input, Badge } from "@/components/ui";
+
+export function ContactForm() {
+  return (
+    <form className="space-y-4 max-w-md">
+      <Input placeholder="Full Name" />
+      <Input placeholder="Email" type="email" />
+      <Input placeholder="Message" />
+      
+      <div className="flex space-x-2">
+        <Button variant="primary" type="submit">
+          Send Message
+        </Button>
+        <Button variant="secondary" type="button">
+          Cancel
+        </Button>
+      </div>
+      
+      <Badge variant="info">Form will be processed</Badge>
+    </form>
+  );
+}
+```
+
+## 🎨 테마 시스템 사용
+
+### 테마 컨텍스트 사용
+```tsx
+import { useTheme } from "@/lib/theme/ThemeContext";
+
+export function ThemeAwareComponent() {
+  const { currentTheme, currentColors, setTheme } = useTheme();
+  
+  return (
+    <div>
+      <p>Current theme: {currentTheme}</p>
+      <p>Primary color: {currentColors.primary}</p>
+      <Button onClick={() => setTheme('dark')}>Dark Theme</Button>
+      <Button onClick={() => setTheme('white')}>Light Theme</Button>
+    </div>
+  );
+}
+```
+
+## 📝 코드 리뷰 체크리스트
+
+새로운 컴포넌트나 페이지를 작성할 때 다음을 확인하세요:
+
+- [ ] HTML 태그 대신 Weave UI Components 사용
+- [ ] 테마 시스템 적용 (ClientThemeProvider로 감싸기)
+- [ ] 올바른 색상 클래스 사용 (primary-background, text-primary 등)
+- [ ] 일관된 간격 시스템 사용 (space-x-4, space-y-4 등)
+- [ ] 반응형 디자인 고려
+- [ ] 접근성 고려 (aria-label, role 등)
+
+## 🔧 유틸리티 함수 사용
+
+### 클래스명 병합
+```tsx
+import { cn } from "@/lib/utils";
+
+// 조건부 클래스 적용
+<Button 
+  variant="primary" 
+  className={cn(
+    "w-full",
+    isActive && "ring-2 ring-blue-500"
+  )}
+>
+  Click me
+</Button>
+```
+
+## 🚨 예외 상황
+
+다음과 같은 경우에만 HTML 태그 직접 사용 가능:
+- SEO를 위한 메타데이터
+- 스크립트 태그
+- 특별한 접근성 요구사항
+- Weave UI Components로 구현 불가능한 기능
+
+이 경우 반드시 주석으로 이유를 명시하세요:
+```tsx
+// SEO를 위한 메타 태그
+<meta name="description" content="..." />
+
+// 특별한 접근성 요구사항으로 인한 직접 HTML 사용
+<div role="application" aria-label="Complex widget">
+  {/* 복잡한 위젯 구현 */}
+</div>
+```
+
+## 📚 참고 자료
+
+- Weave UI Components 데모: `/components` 페이지
+- 테마 시스템: `src/lib/theme/` 폴더
+- 컴포넌트 정의: `src/components/ui/` 폴더
+- 유틸리티 함수: `src/lib/utils.ts`
+
+---
+
+**중요**: 이 규칙을 위반하면 코드 리뷰에서 반려될 수 있습니다. 일관된 디자인 시스템을 유지하기 위해 반드시 Weave UI Components를 사용하세요.
+
+## 🆕 새 컴포넌트 생성 규칙
+
+### 컴포넌트 생성 전 필수 확인사항
+
+새로운 컴포넌트를 생성하기 전에 반드시 다음 사항을 사용자에게 확인하세요:
+
+1. **컴포넌트 필요성 검증**
+   - 왜 이 컴포넌트가 필요한지 명확한 이유
+   - 기존 Weave UI Components로 구현이 불가능한지 확인
+   - 다른 프로젝트에서도 재사용될 가능성
+
+2. **사용 목적 및 위치**
+   - 어디에서 사용될 예정인지 구체적 위치
+   - 어떤 기능을 담당할지 명확한 역할
+   - 다른 컴포넌트와의 관계 및 의존성
+
+3. **디자인 시스템 일관성**
+   - 기존 Weave UI Components와의 스타일 일관성
+   - 테마 시스템과의 호환성
+   - 접근성 요구사항
+
+### 컴포넌트 생성 요청 형식
+
+새 컴포넌트가 필요하다고 판단되면 다음 형식으로 사용자에게 피드백을 요청하세요:
+
+```
+## 🆕 새 컴포넌트 생성 요청
+
+### 컴포넌트 정보
+- **이름**: [컴포넌트명]
+- **목적**: [왜 필요한지]
+- **사용 위치**: [어디에 사용될지]
+- **기능**: [무엇을 하는지]
+
+### 기존 컴포넌트 대체 가능성
+- [ ] Button, Badge, Input 등 기존 컴포넌트로 구현 불가
+- [ ] 다른 프로젝트에서도 재사용 예정
+- [ ] Weave 디자인 시스템과 일관성 유지
+
+### 예상 Props 및 기능
+- Props: [예상되는 props 목록]
+- Variants: [예상되는 variants]
+- Sizes: [예상되는 sizes]
+
+**사용자 승인 후 컴포넌트 생성 진행**
+```
+
+### 금지사항
+
+- ❌ 사용자 확인 없이 임의로 컴포넌트 생성
+- ❌ 기존 컴포넌트로 구현 가능한데 새 컴포넌트 생성
+- ❌ 일회성 사용을 위한 컴포넌트 생성
+- ❌ 디자인 시스템과 일관성 없는 컴포넌트 생성
+
+### 예외 상황
+
+다음과 같은 경우에만 즉시 컴포넌트 생성 가능:
+- 기존 컴포넌트의 버그 수정
+- 기존 컴포넌트의 기능 확장 (props 추가 등)
+- 사용자가 명시적으로 요청한 컴포넌트
+
+---
+
+**중요**: 모든 새 컴포넌트 생성은 사용자 승인을 받은 후에만 진행하세요.
+
+## 🔍 코드 패턴 분석 및 일관성 유지
+
+### 기존 코드베이스 패턴 분석
+
+새로운 기능을 추가하기 전에 기존 코드베이스를 분석하여 일관된 패턴을 따르세요:
+
+1. **컴포넌트 구조 패턴**
+   - `"use client"` 지시어 사용 위치
+   - import 순서 (React → 내부 라이브러리 → 외부 라이브러리)
+   - props 타입 정의 방식
+   - forwardRef 사용 패턴
+
+2. **스타일링 패턴**
+   - Tailwind 클래스 그룹핑 방식
+   - 동적 스타일 적용 방법 (inline style vs className)
+   - 조건부 스타일링 패턴
+   - 테마 시스템 연동 방식
+
+3. **타입 정의 패턴**
+   - 인터페이스 vs 타입 별칭 사용 기준
+   - 공통 타입 재사용 방법
+   - 제네릭 사용 패턴
+
+### 연관 파일 검토 가이드라인
+
+컴포넌트 수정 시 다음 연관 파일들을 함께 검토하세요:
+
+1. **테마 시스템 연관 파일**
+   - `src/lib/theme/ThemeContext.tsx` - 컨텍스트 구조
+   - `src/lib/theme/constants.ts` - 색상 팔레트 정의
+   - `src/lib/theme/types.ts` - 타입 정의
+   - `src/app/globals.css` - 전역 스타일 규칙
+
+2. **컴포넌트 연관 파일**
+   - `src/components/ui/index.ts` - export 구조
+   - `src/lib/utils.ts` - 유틸리티 함수
+   - `src/app/components/page.tsx` - 데모 페이지
+
+3. **검토 체크리스트**
+   - [ ] 테마 시스템과 호환성 확인
+   - [ ] 기존 컴포넌트와 일관된 패턴 사용
+   - [ ] 타입 정의 중복 방지
+   - [ ] 스타일 규칙 충돌 확인
+
+## 🚫 중복 방지 및 자연스러운 확장
+
+### 중복 코드 방지 규칙
+
+1. **스타일 중복 방지**
+   ```tsx
+   // ❌ 중복된 스타일 정의
+   const buttonStyles = "px-4 py-2 rounded";
+   const primaryButton = `${buttonStyles} bg-blue-500`;
+   const secondaryButton = `${buttonStyles} bg-gray-500`;
+
+   // ✅ 공통 스타일 분리
+   const baseButtonStyles = "px-4 py-2 rounded";
+   const variants = {
+     primary: cn(baseButtonStyles, "bg-blue-500"),
+     secondary: cn(baseButtonStyles, "bg-gray-500")
+   };
+   ```
+
+2. **로직 중복 방지**
+   ```tsx
+   // ❌ 중복된 로직
+   const getPrimaryColor = () => currentColors.primary;
+   const getSecondaryColor = () => currentColors.secondary;
+
+   // ✅ 공통 유틸리티 함수
+   const getColor = (type: 'primary' | 'secondary') => currentColors[type];
+   ```
+
+3. **타입 중복 방지**
+   ```tsx
+   // ❌ 중복된 타입 정의
+   interface ButtonProps { size: "sm" | "md" | "lg" }
+   interface BadgeProps { size: "sm" | "md" | "lg" }
+
+   // ✅ 공통 타입 재사용
+   type ComponentSize = "sm" | "md" | "lg";
+   interface ButtonProps { size: ComponentSize }
+   interface BadgeProps { size: ComponentSize }
+   ```
+
+### 자연스러운 확장 방법
+
+1. **기존 패턴 확장**
+   - 새로운 variant 추가 시 기존 variant 구조 따르기
+   - 새로운 size 추가 시 기존 size 패턴 따르기
+   - 새로운 prop 추가 시 기존 prop 네이밍 규칙 따르기
+
+2. **점진적 개선**
+   - 한 번에 모든 것을 변경하지 말고 단계적 개선
+   - 기존 코드와의 호환성 유지
+   - 하위 호환성 보장
+
+## 📋 확장된 코드 리뷰 체크리스트
+
+### 컴포넌트 수정 시
+
+- [ ] 기존 컴포넌트 패턴 분석 완료
+- [ ] 연관 파일 검토 완료
+- [ ] 중복 코드 제거 확인
+- [ ] 테마 시스템 호환성 확인
+- [ ] 타입 정의 일관성 확인
+- [ ] 스타일 규칙 충돌 확인
+- [ ] 접근성 요구사항 충족
+- [ ] 반응형 디자인 고려
+- [ ] 성능 영향 분석
+
+### 새 기능 추가 시
+
+- [ ] 기존 기능과의 일관성 확인
+- [ ] 연관 컴포넌트 영향도 분석
+- [ ] 테마 시스템 확장 필요성 검토
+- [ ] 타입 시스템 확장 계획
+- [ ] 문서화 계획 수립
+- [ ] 테스트 계획 수립
+
+### 코드 품질 확인
+
+- [ ] TypeScript 타입 안전성
+- [ ] ESLint 규칙 준수
+- [ ] 코드 가독성 및 유지보수성
+- [ ] 성능 최적화
+- [ ] 메모리 누수 방지
+- [ ] 에러 처리 완성도
