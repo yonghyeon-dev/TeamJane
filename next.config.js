@@ -1,14 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // GitHub Pages를 위한 정적 내보내기 설정
-  output: "export",
-  trailingSlash: true,
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client"],
     typedRoutes: true,
   },
   images: {
-    unoptimized: true, // 정적 내보내기를 위해 필요
     remotePatterns: [
       {
         protocol: "https",
