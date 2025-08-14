@@ -189,12 +189,30 @@ npm run db:seed
 # 프로덕션 빌드
 npm run build
 
+# 정적 사이트 빌드 (GitHub Pages용)
+npm run build:static
+
 # Vercel 배포
 npm run deploy
 
 # 프리뷰 배포
 npm run deploy:preview
 ```
+
+### GitHub Pages 배포
+
+1. **GitHub 저장소 설정**
+   - Settings → Pages → Source를 "GitHub Actions"로 설정
+
+2. **자동 배포**
+   - main 브랜치에 push하면 자동으로 GitHub Pages에 배포됩니다
+   - `.github/workflows/deploy.yml` 워크플로우가 실행됩니다
+
+3. **수동 배포**
+   ```bash
+   npm run build:static
+   # out 폴더의 내용을 GitHub Pages에 업로드
+   ```
 
 ## 🧪 테스트
 
