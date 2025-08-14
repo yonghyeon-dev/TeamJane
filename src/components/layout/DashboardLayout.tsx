@@ -57,7 +57,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -68,7 +68,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Sidebar */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:w-64 xl:w-72",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex flex-col h-full">
@@ -147,9 +147,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className="flex flex-col flex-1 overflow-hidden">
         {/* Top bar */}
-        <header className="bg-white shadow-sm border-b">
+        <header className="bg-white shadow-sm border-b flex-shrink-0">
           <div className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center space-x-4">
               <Button
@@ -168,7 +168,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <input
                     type="text"
                     placeholder="검색..."
-                    className="pl-10 pr-4 py-2 w-80 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="pl-10 pr-4 py-2 w-80 xl:w-96 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -195,7 +195,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1">
+        <main className="flex-1 overflow-auto">
           {children}
         </main>
       </div>

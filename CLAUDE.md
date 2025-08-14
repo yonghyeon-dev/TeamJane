@@ -86,6 +86,9 @@ npm run unlink
 
 ## 주요 규칙
 
+### 언어 사용 규칙
+- **한국어 전용**: Claude는 모든 답변을 한국어로만 제공해야 합니다.
+
 ### 가져오기 패턴
 - 컴포넌트: `import { Button, Badge } from "@weave/ui-components"`
 - 테마: `import { ThemeProvider, useTheme } from "@weave/ui-components"`

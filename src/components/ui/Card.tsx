@@ -49,19 +49,20 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ) => {
     const variants = {
       default:
-        "bg-transparent border border-primary-borderSecondary rounded-lg",
+        "bg-white border border-gray-200 rounded-lg shadow-sm",
       elevated:
-        "bg-primary-surface border border-primary-borderSecondary rounded-lg shadow-sm",
-      outlined: "bg-transparent border-2 border-primary-border rounded-lg",
+        "bg-white border border-gray-200 rounded-lg shadow-md",
+      outlined: "bg-transparent border-2 border-gray-300 rounded-lg",
     };
 
     return (
       <div
         ref={ref}
         className={cn(
-          "transition-all duration-fast",
+          "transition-all duration-200",
           variants[variant],
-          interactive && "card-interactive",
+          interactive && "hover:shadow-lg cursor-pointer",
+          "hover:shadow-md",
           className
         )}
         tabIndex={interactive ? 0 : undefined}
@@ -91,7 +92,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
   ({ className, children, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("flex flex-col space-y-1.5 p-6", className)}
+      className={cn("flex flex-col space-y-1.5 p-6 pb-4", className)}
       {...props}
     >
       {children}
@@ -104,7 +105,7 @@ const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
     <h3
       ref={ref}
       className={cn(
-        "text-lg font-semibold leading-none tracking-tight text-text-primary",
+        "text-lg font-semibold leading-none tracking-tight text-gray-900",
         className
       )}
       {...props}
@@ -120,7 +121,7 @@ const CardDescription = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-text-secondary", className)}
+    className={cn("text-sm text-gray-600", className)}
     {...props}
   >
     {children}

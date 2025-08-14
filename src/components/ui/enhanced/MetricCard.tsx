@@ -68,12 +68,12 @@ const MetricCard: React.FC<MetricCardProps> = ({
   }
 
   return (
-    <Card className={cn("hover:shadow-md transition-shadow", className)}>
-      <CardHeader className="pb-2">
+    <Card className={cn("", className)}>
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-text-secondary">{title}</h3>
+          <h3 className="text-sm font-medium text-gray-600">{title}</h3>
           {icon && (
-            <div className="flex-shrink-0 p-2 bg-primary-50 rounded-lg">
+            <div className="flex-shrink-0 p-2 bg-gray-50 rounded-lg">
               {icon}
             </div>
           )}
@@ -82,7 +82,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
       <CardContent>
         <div className="space-y-1">
           <div className={cn(
-            "text-2xl font-bold text-text-primary",
+            "text-2xl font-bold text-gray-900",
             valueColor
           )}>
             {value}
@@ -98,7 +98,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
           )}
           
           {description && (
-            <p className="text-xs text-text-tertiary">{description}</p>
+            <p className="text-xs text-gray-500">{description}</p>
           )}
         </div>
       </CardContent>
