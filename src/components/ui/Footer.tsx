@@ -35,7 +35,7 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
       logo,
       links = [],
       socialLinks = [],
-      copyright = "© 2024 Weave. All rights reserved.",
+      copyright = "© 2024 WEAVE. 모든 권리 보유.",
       variant = "default",
     },
     ref
@@ -54,20 +54,20 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
               {logo || (
                 <div className="flex items-center space-x-2 mb-4">
                   <Image
-                    src="/logo.png"
-                    alt="Weave Logo"
+                    src="/favicon.ico"
+                    alt="WEAVE Logo"
                     width={32}
                     height={32}
                     className="w-8 h-8"
                   />
-                  <span className="text-text-primary font-semibold text-lg">
-                    Weave
+                  <span className="text-gray-900 font-semibold text-lg">
+                    WEAVE
                   </span>
                 </div>
               )}
               <Typography color="secondary" className="mb-4">
-                Building the future of collaborative design with powerful tools
-                and seamless workflows.
+                프리랜서를 위한 올인원 워크스페이스. 프로젝트 관리부터 청구서 발행까지 
+                모든 업무를 하나로 통합 관리하세요.
               </Typography>
 
               {/* Social Links */}

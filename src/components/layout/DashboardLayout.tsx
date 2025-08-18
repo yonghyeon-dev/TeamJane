@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth/auth-context'
@@ -43,6 +44,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const { user, signOut } = useAuth()
@@ -55,6 +57,28 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       console.error('로그아웃 오류:', error)
     }
   }
+
+  const handleNotifications = () => {
+    setNotificationsOpen(!notificationsOpen)
+  }
+
+  // 외부 클릭 시 알림 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (!target.closest('[data-notification-dropdown]')) {
+        setNotificationsOpen(false)
+      }
+    }
+
+    if (notificationsOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [notificationsOpen])
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -75,10 +99,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Logo */}
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">W</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">Weave ERP</span>
+              <Image
+                src="/favicon.ico"
+                alt="WEAVE Logo"
+                width={32}
+                height={32}
+                className="w-8 h-8"
+              />
+              <span className="text-xl font-bold text-gray-900">WEAVE</span>
             </Link>
             <Button
               variant="ghost"
@@ -121,7 +149,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* User menu */}
           <div className="border-t px-4 py-4">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
                 <User className="w-5 h-5 text-gray-600" />
               </div>
               <div className="flex-1 min-w-0">
@@ -176,10 +204,65 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
             <div className="flex items-center space-x-4">
               {/* Notifications */}
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-              </Button>
+              <div className="relative" data-notification-dropdown>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="relative"
+                  onClick={handleNotifications}
+                >
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                </Button>
+                
+                {/* Notifications Dropdown */}
+                {notificationsOpen && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="p-4 border-b border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-900">알림</h3>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      <div className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">새 청구서 생성됨</p>
+                          <p className="text-sm text-gray-600">INV-20241201-001 청구서가 생성되었습니다.</p>
+                          <p className="text-xs text-gray-500 mt-1">5분 전</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
+                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">프로젝트 완료</p>
+                          <p className="text-sm text-gray-600">웹사이트 리뉴얼 프로젝트가 완료되었습니다.</p>
+                          <p className="text-xs text-gray-500 mt-1">1시간 전</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">결제 알림</p>
+                          <p className="text-sm text-gray-600">청구서 결제 기한이 3일 남았습니다.</p>
+                          <p className="text-xs text-gray-500 mt-1">2시간 전</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 border-t border-gray-200">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full text-center text-blue-600 hover:text-blue-700"
+                        onClick={() => {
+                          setNotificationsOpen(false);
+                          router.push('/notifications');
+                        }}
+                      >
+                        모든 알림 보기
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Profile */}
               <div className="flex items-center space-x-2">

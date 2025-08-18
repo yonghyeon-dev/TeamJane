@@ -1,5 +1,5 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Database } from './types'
+import { Database } from '../../types/database'
 
 export const createClient = () => {
   // 환경변수 체크

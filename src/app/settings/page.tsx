@@ -49,7 +49,7 @@ export default function SettingsPage() {
     name: 'admin',
     email: 'admin@weave.com',
     phone: '010-0000-0000',
-    company: 'Weave ERP',
+    company: 'WEAVE',
     address: '서울시 강남구 테헤란로 123',
     taxId: '123-45-67890'
   });

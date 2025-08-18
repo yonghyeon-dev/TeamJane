@@ -1,7 +1,10 @@
 import Link from "next/link"
+import Image from "next/image"
 import Button from "@/components/ui/Button"
 import { Card, CardContent, CardHeader } from "@/components/ui/Card"
 import Badge from "@/components/ui/Badge"
+import Navbar from "@/components/ui/Navbar"
+import Footer from "@/components/ui/Footer"
 import { 
   ArrowRight, 
   Users, 
@@ -11,19 +14,92 @@ import {
   Sparkles,
   Clock,
   Shield,
-  Zap
+  Zap,
+  Github,
+  Twitter,
+  Linkedin
 } from "lucide-react"
 
 export default function Home() {
+  // 네비게이션 메뉴 아이템
+  const menuItems = [
+    { label: "대시보드", href: "/dashboard" },
+    { label: "프로젝트", href: "/projects" },
+    { label: "클라이언트", href: "/clients" },
+    { label: "문서", href: "/documents" },
+    { label: "청구서", href: "/invoices" }
+  ];
+
+  // 푸터 링크 그룹
+  const footerLinks = [
+    {
+      title: "워크스페이스",
+      links: [
+        { label: "대시보드", href: "/dashboard" },
+        { label: "프로젝트", href: "/projects" },
+        { label: "클라이언트", href: "/clients" },
+        { label: "문서", href: "/documents" }
+      ]
+    },
+    {
+      title: "관리",
+      links: [
+        { label: "청구서", href: "/invoices" },
+        { label: "설정", href: "/settings" },
+        { label: "계정", href: "/auth/login" }
+      ]
+    },
+    {
+      title: "지원",
+      links: [
+        { label: "시작하기", href: "/auth/register" },
+        { label: "로그인", href: "/auth/login" }
+      ]
+    }
+  ];
+
+  // 소셜 링크
+  const socialLinks = [
+    { name: "GitHub", href: "#", icon: <Github className="w-5 h-5" /> },
+    { name: "Twitter", href: "#", icon: <Twitter className="w-5 h-5" /> },
+    { name: "LinkedIn", href: "#", icon: <Linkedin className="w-5 h-5" /> }
+  ];
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Header */}
+      <Navbar
+        logo={
+          <div className="flex items-center space-x-2">
+            <Image
+              src="/favicon.ico"
+              alt="WEAVE Logo"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
+            <span className="text-xl font-bold text-gray-900">WEAVE</span>
+          </div>
+        }
+        menuItems={menuItems}
+        actions={
+          <div className="flex items-center space-x-4">
+            <Link href="/auth/login">
+              <Button variant="secondary" size="sm">로그인</Button>
+            </Link>
+            <Link href="/auth/register">
+              <Button variant="primary" size="sm">무료 시작</Button>
+            </Link>
+          </div>
+        }
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 to-white">
         <div className="container mx-auto px-6 py-20 max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
-                <Badge variant="secondary" className="bg-primary-100 text-primary-700">
+                <Badge variant="primary">
                   ✨ 프리랜서를 위한 올인원 솔루션
                 </Badge>
                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
@@ -31,7 +107,7 @@ export default function Home() {
                   <span className="text-primary-600 block">하나로 엮다</span>
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  프로젝트 관리부터 청구서 발행까지, 프리랜서의 모든 비즈니스 활동을 
+                  프로젝트 관리부터 청구서 발행까지, 프리랜서의 모든 비즈니스 활동을
                   <strong className="text-primary-600"> Weave</strong> 하나로 통합 관리하세요.
                 </p>
               </div>
@@ -44,7 +120,7 @@ export default function Home() {
                   </Button>
                 </Link>
                 <Link href="/auth/login">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                  <Button variant="secondary" size="lg" className="w-full sm:w-auto">
                     로그인
                   </Button>
                 </Link>
@@ -72,7 +148,7 @@ export default function Home() {
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold text-gray-900">오늘의 대시보드</h3>
-                      <Badge variant="primary" className="bg-green-100 text-green-800">
+                      <Badge variant="primary">
                         실시간
                       </Badge>
                     </div>
@@ -123,7 +199,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-50">
+      <section id="features" className="py-20 bg-gray-50">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-4xl font-bold text-gray-900">
@@ -242,7 +318,7 @@ export default function Home() {
                 </Button>
               </Link>
               <Link href="#demo">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto text-gray-900 border-gray-300 hover:bg-gray-100">
+                <Button variant="secondary" size="lg" className="w-full sm:w-auto">
                   데모 보기
                 </Button>
               </Link>
@@ -254,6 +330,25 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <Footer
+        logo={
+          <div className="flex items-center space-x-2">
+            <Image
+              src="/favicon.ico"
+              alt="WEAVE Logo"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
+            <span className="text-xl font-bold text-gray-900">WEAVE</span>
+          </div>
+        }
+        links={footerLinks}
+        socialLinks={socialLinks}
+        copyright="© 2024 WEAVE. 모든 권리 보유."
+      />
     </div>
   )
 }

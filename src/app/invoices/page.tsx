@@ -1,11 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import Button from '@/components/ui/Button';
-import Badge from '@/components/ui/Badge';
+import StatusBadge from '@/components/ui/enhanced/StatusBadge';
 import Input from '@/components/ui/Input';
+import Modal from '@/components/ui/Modal';
+import InvoiceForm from '@/components/forms/InvoiceForm';
+import { useInvoiceStore, useInvoiceSelectors } from '@/stores/useInvoiceStore';
+import { useError } from '@/contexts/ErrorContext';
 import { 
   PlusIcon, 
   SearchIcon, 
@@ -14,91 +19,136 @@ import {
   DollarSignIcon,
   CalendarIcon,
   SendIcon,
-  AlertCircleIcon
+  AlertCircleIcon,
+  LoaderIcon,
+  SortAscIcon,
+  SortDescIcon,
+  XIcon
 } from 'lucide-react';
 
-interface Invoice {
-  id: string;
-  invoiceNumber: string;
-  client: string;
-  project: string;
-  amount: number;
-  status: 'draft' | 'sent' | 'overdue' | 'paid';
-  issueDate: string;
-  dueDate: string;
-  paidDate?: string;
-}
-
-const mockInvoices: Invoice[] = [
-  {
-    id: '1',
-    invoiceNumber: 'INV-2024-001',
-    client: 'ABC Corp',
-    project: 'ABC 스타트업 웹사이트 디자인',
-    amount: 2500000,
-    status: 'paid',
-    issueDate: '2024-01-01',
-    dueDate: '2024-01-15',
-    paidDate: '2024-01-12'
-  },
-  {
-    id: '2',
-    invoiceNumber: 'INV-2024-002',
-    client: 'XYZ Inc',
-    project: 'XYZ 모바일 앱 개발',
-    amount: 5000000,
-    status: 'sent',
-    issueDate: '2024-01-05',
-    dueDate: '2024-01-20'
-  },
-  {
-    id: '3',
-    invoiceNumber: 'INV-2024-003',
-    client: 'DEF Ltd',
-    project: 'DEF 브랜딩 프로젝트',
-    amount: 1800000,
-    status: 'overdue',
-    issueDate: '2023-12-15',
-    dueDate: '2023-12-30'
-  },
-  {
-    id: '4',
-    invoiceNumber: 'INV-2024-004',
-    client: 'GHI Studio',
-    project: 'GHI 로고 디자인',
-    amount: 800000,
-    status: 'draft',
-    issueDate: '2024-01-10',
-    dueDate: '2024-01-25'
-  }
-];
-
-const statusColors = {
-  'draft': 'bg-gray-100 text-gray-800',
-  'sent': 'bg-blue-100 text-blue-800',
-  'overdue': 'bg-red-100 text-red-800',
-  'paid': 'bg-green-100 text-green-800'
-};
-
-const statusLabels = {
-  'draft': '임시저장',
-  'sent': '발송됨',
-  'overdue': '연체',
-  'paid': '결제완료'
-};
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const router = useRouter();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<string>('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [showFilters, setShowFilters] = useState(false);
+  const { showSuccess, showError, handleApiError } = useError();
+  
+  // Zustand 상태 관리 사용
+  const { 
+    invoices, 
+    isLoading, 
+    error, 
+    searchQuery, 
+    statusFilter,
+    fetchInvoices, 
+    updateInvoice,
+    setSearchQuery, 
+    setStatusFilter,
+    setError 
+  } = useInvoiceStore();
+  
+  const { filteredInvoices, invoiceStats } = useInvoiceSelectors();
+  
+  // 컴포넌트 마운트 시 청구서 데이터 로드
+  useEffect(() => {
+    const loadInvoices = async () => {
+      try {
+        await fetchInvoices();
+      } catch (err) {
+        handleApiError(err, '청구서 데이터 로드 실패');
+      }
+    };
+    
+    loadInvoices();
+  }, [fetchInvoices, handleApiError]);
 
-  const filteredInvoices = invoices.filter(invoice => {
-    const matchesSearch = invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         invoice.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         invoice.project.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus === 'all' || invoice.status === selectedStatus;
-    return matchesSearch && matchesStatus;
+  // 검색어 debounce 처리
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery !== '') {
+        fetchInvoices();
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, fetchInvoices]);
+
+  // 상태 필터 변경 시 즉시 검색
+  useEffect(() => {
+    fetchInvoices();
+  }, [statusFilter, fetchInvoices]);
+
+  // 정렬된 청구서 목록
+  const sortedFilteredInvoices = [...filteredInvoices].sort((a, b) => {
+    let aValue, bValue;
+    
+    switch (sortBy) {
+      case 'invoice_number':
+        aValue = a.invoice_number?.toLowerCase() || '';
+        bValue = b.invoice_number?.toLowerCase() || '';
+        break;
+      case 'amount':
+        aValue = Number(a.amount) || 0;
+        bValue = Number(b.amount) || 0;
+        break;
+      case 'due_date':
+        aValue = a.due_date ? new Date(a.due_date).getTime() : 0;
+        bValue = b.due_date ? new Date(b.due_date).getTime() : 0;
+        break;
+      case 'issue_date':
+        aValue = a.issue_date ? new Date(a.issue_date).getTime() : 0;
+        bValue = b.issue_date ? new Date(b.issue_date).getTime() : 0;
+        break;
+      case 'created_at':
+      default:
+        aValue = new Date(a.created_at).getTime();
+        bValue = new Date(b.created_at).getTime();
+        break;
+    }
+    
+    if (sortOrder === 'asc') {
+      return aValue > bValue ? 1 : -1;
+    } else {
+      return aValue < bValue ? 1 : -1;
+    }
   });
+
+  const clearFilters = () => {
+    setStatusFilter('all');
+    setSearchQuery('');
+  };
+
+  const handleNewInvoice = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleInvoiceCreated = async () => {
+    try {
+      setIsCreateModalOpen(false);
+      showSuccess('청구서 생성 완료', '새 청구서가 성공적으로 생성되었습니다.');
+      
+      if (error) {
+        setError(null);
+      }
+    } catch (err) {
+      handleApiError(err, '청구서 생성 실패');
+    }
+  };
+
+  const handleSendInvoice = async (invoiceId: string, invoiceNumber: string) => {
+    try {
+      await updateInvoice(invoiceId, { status: 'sent' });
+      showSuccess('청구서 발송', `청구서 ${invoiceNumber}가 발송되었습니다.`);
+    } catch (err) {
+      handleApiError(err, '청구서 발송 실패');
+    }
+  };
+
+  const handleInvoiceMenu = (invoiceId: string, invoiceNumber: string) => {
+    alert(`청구서 ${invoiceNumber} 메뉴 기능은 곧 출시됩니다!`);
+  };
 
   const getDaysUntilDue = (dueDate: string) => {
     const today = new Date();
@@ -107,10 +157,6 @@ export default function InvoicesPage() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
-
-  const totalAmount = invoices.reduce((sum, inv) => sum + inv.amount, 0);
-  const paidAmount = invoices.filter(inv => inv.status === 'paid').reduce((sum, inv) => sum + inv.amount, 0);
-  const pendingAmount = totalAmount - paidAmount;
 
   return (
     <DashboardLayout>
@@ -122,9 +168,18 @@ export default function InvoicesPage() {
           <p className="text-gray-600 mt-2">
             청구서 발행과 결제 현황을 관리하세요
           </p>
+          {error && (
+            <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded-md text-red-700 text-sm">
+              오류: {error}
+            </div>
+          )}
         </div>
-        <Button className="gap-2">
-          <PlusIcon className="h-4 w-4" />
+        <Button className="gap-2" onClick={handleNewInvoice} disabled={isLoading}>
+          {isLoading ? (
+            <LoaderIcon className="h-4 w-4 animate-spin" />
+          ) : (
+            <PlusIcon className="h-4 w-4" />
+          )}
           새 청구서
         </Button>
       </div>
@@ -135,15 +190,17 @@ export default function InvoicesPage() {
           <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-600" />
           <Input
             placeholder="청구서 번호, 클라이언트, 프로젝트 검색..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
+            disabled={isLoading}
           />
         </div>
         <select
-          value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md bg-white"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="px-3 py-2 border border-gray-300 rounded-md bg-white disabled:opacity-50"
+          disabled={isLoading}
         >
           <option value="all">모든 상태</option>
           <option value="draft">임시저장</option>
@@ -151,11 +208,65 @@ export default function InvoicesPage() {
           <option value="overdue">연체</option>
           <option value="paid">결제완료</option>
         </select>
-        <Button variant="outline" className="gap-2">
+        <Button 
+          variant={showFilters ? "default" : "outline"} 
+          className="gap-2" 
+          disabled={isLoading}
+          onClick={() => setShowFilters(!showFilters)}
+        >
           <FilterIcon className="h-4 w-4" />
           필터
         </Button>
+        {(searchQuery || statusFilter !== 'all') && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={clearFilters}
+            className="text-gray-600 hover:text-gray-800"
+          >
+            <XIcon className="h-4 w-4" />
+            초기화
+          </Button>
+        )}
       </div>
+      
+      {/* Advanced Filters */}
+      {showFilters && (
+        <div className="p-4 bg-gray-50 rounded-lg border">
+          <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">정렬:</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-2 py-1 border border-gray-300 rounded text-sm"
+              >
+                <option value="created_at">생성일</option>
+                <option value="invoice_number">청구서 번호</option>
+                <option value="amount">금액</option>
+                <option value="issue_date">발행일</option>
+                <option value="due_date">마감일</option>
+              </select>
+              <button
+                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                className="p-1 hover:bg-gray-200 rounded"
+              >
+                {sortOrder === 'asc' ? (
+                  <SortAscIcon className="h-4 w-4" />
+                ) : (
+                  <SortDescIcon className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                총 {filteredInvoices.length}개 청구서
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -164,10 +275,16 @@ export default function InvoicesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">전체 청구서</p>
-                <p className="text-2xl font-bold">{invoices.length}</p>
+                <p className="text-2xl font-bold">
+                  {isLoading ? (
+                    <LoaderIcon className="h-6 w-6 animate-spin" />
+                  ) : (
+                    invoiceStats.total
+                  )}
+                </p>
               </div>
-              <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <DollarSignIcon className="h-4 w-4 text-blue-600" />
+              <div className="h-8 w-8 bg-teal-100 rounded-full flex items-center justify-center">
+                <DollarSignIcon className="h-4 w-4 text-teal-600" />
               </div>
             </div>
           </CardContent>
@@ -177,10 +294,16 @@ export default function InvoicesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">총 청구 금액</p>
-                <p className="text-2xl font-bold">₩{totalAmount.toLocaleString()}</p>
+                <p className="text-2xl font-bold">
+                  {isLoading ? (
+                    <LoaderIcon className="h-6 w-6 animate-spin" />
+                  ) : (
+                    `₩${invoiceStats.totalAmount.toLocaleString()}`
+                  )}
+                </p>
               </div>
-              <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
-                <DollarSignIcon className="h-4 w-4 text-purple-600" />
+              <div className="h-8 w-8 bg-teal-100 rounded-full flex items-center justify-center">
+                <DollarSignIcon className="h-4 w-4 text-teal-600" />
               </div>
             </div>
           </CardContent>
@@ -190,7 +313,13 @@ export default function InvoicesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">수금 완료</p>
-                <p className="text-2xl font-bold">₩{paidAmount.toLocaleString()}</p>
+                <p className="text-2xl font-bold">
+                  {isLoading ? (
+                    <LoaderIcon className="h-6 w-6 animate-spin" />
+                  ) : (
+                    `₩${invoiceStats.paidAmount.toLocaleString()}`
+                  )}
+                </p>
               </div>
               <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
                 <DollarSignIcon className="h-4 w-4 text-green-600" />
@@ -203,7 +332,13 @@ export default function InvoicesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">미수금</p>
-                <p className="text-2xl font-bold">₩{pendingAmount.toLocaleString()}</p>
+                <p className="text-2xl font-bold">
+                  {isLoading ? (
+                    <LoaderIcon className="h-6 w-6 animate-spin" />
+                  ) : (
+                    `₩${invoiceStats.pendingAmount.toLocaleString()}`
+                  )}
+                </p>
               </div>
               <div className="h-8 w-8 bg-yellow-100 rounded-full flex items-center justify-center">
                 <AlertCircleIcon className="h-4 w-4 text-yellow-600" />
@@ -219,88 +354,148 @@ export default function InvoicesPage() {
           <CardTitle>청구서 목록</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">청구서 번호</th>
-                  <th className="text-left py-3 px-4 font-medium">클라이언트</th>
-                  <th className="text-left py-3 px-4 font-medium">프로젝트</th>
-                  <th className="text-left py-3 px-4 font-medium">금액</th>
-                  <th className="text-left py-3 px-4 font-medium">상태</th>
-                  <th className="text-left py-3 px-4 font-medium">발행일</th>
-                  <th className="text-left py-3 px-4 font-medium">마감일</th>
-                  <th className="text-right py-3 px-4 font-medium">작업</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredInvoices.map((invoice) => {
-                  const daysUntilDue = getDaysUntilDue(invoice.dueDate);
-                  return (
-                    <tr key={invoice.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-4">
-                        <span className="font-medium">{invoice.invoiceNumber}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm">{invoice.client}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm">{invoice.project}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="font-medium">₩{invoice.amount.toLocaleString()}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <Badge className={statusColors[invoice.status]}>
-                          {statusLabels[invoice.status]}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm text-gray-600">{invoice.issueDate}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex flex-col">
-                          <span className="text-sm text-gray-600">{invoice.dueDate}</span>
-                          {invoice.status !== 'paid' && daysUntilDue < 0 && (
-                            <span className="text-xs text-red-600">
-                              {Math.abs(daysUntilDue)}일 연체
+          {isLoading && invoices.length === 0 ? (
+            <div className="flex justify-center items-center py-12">
+              <LoaderIcon className="h-8 w-8 animate-spin text-teal-600" />
+              <span className="ml-2 text-gray-600">청구서를 불러오는 중...</span>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-4 font-medium">청구서 번호</th>
+                    <th className="text-left py-3 px-4 font-medium">클라이언트</th>
+                    <th className="text-left py-3 px-4 font-medium">프로젝트</th>
+                    <th className="text-left py-3 px-4 font-medium">금액</th>
+                    <th className="text-left py-3 px-4 font-medium">상태</th>
+                    <th className="text-left py-3 px-4 font-medium">발행일</th>
+                    <th className="text-left py-3 px-4 font-medium">마감일</th>
+                    <th className="text-right py-3 px-4 font-medium">작업</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedFilteredInvoices.map((invoice) => {
+                    const daysUntilDue = invoice.due_date ? getDaysUntilDue(invoice.due_date) : 0;
+                    return (
+                      <tr key={invoice.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-4">
+                          <span className="font-medium">{invoice.invoice_number || '-'}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm">{invoice.project?.client?.name || '클라이언트 정보 없음'}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm">{invoice.project?.name || '프로젝트 정보 없음'}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="font-medium">₩{Number(invoice.amount || 0).toLocaleString()}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <StatusBadge status={invoice.status} type="invoice" />
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm text-gray-600">
+                            {invoice.issue_date ? new Date(invoice.issue_date).toLocaleDateString('ko-KR') : '-'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex flex-col">
+                            <span className="text-sm text-gray-600">
+                              {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString('ko-KR') : '-'}
                             </span>
-                          )}
-                          {invoice.status !== 'paid' && daysUntilDue >= 0 && daysUntilDue <= 7 && (
-                            <span className="text-xs text-yellow-600">
-                              {daysUntilDue}일 남음
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2 justify-end">
-                          {invoice.status === 'draft' && (
-                            <Button variant="outline" size="sm" className="gap-1">
-                              <SendIcon className="h-3 w-3" />
-                              발송
+                            {invoice.status !== 'paid' && invoice.due_date && daysUntilDue < 0 && (
+                              <span className="text-xs text-red-600">
+                                {Math.abs(daysUntilDue)}일 연체
+                              </span>
+                            )}
+                            {invoice.status !== 'paid' && invoice.due_date && daysUntilDue >= 0 && daysUntilDue <= 7 && (
+                              <span className="text-xs text-yellow-600">
+                                {daysUntilDue}일 남음
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2 justify-end">
+                            {invoice.status === 'draft' && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="gap-1" 
+                                onClick={() => handleSendInvoice(invoice.id, invoice.invoice_number || '')}
+                                disabled={isLoading}
+                              >
+                                <SendIcon className="h-3 w-3" />
+                                발송
+                              </Button>
+                            )}
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => handleInvoiceMenu(invoice.id, invoice.invoice_number || '')}
+                              disabled={isLoading}
+                            >
+                              <MoreHorizontalIcon className="h-4 w-4" />
                             </Button>
-                          )}
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontalIcon className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {filteredInvoices.length === 0 && (
+      {sortedFilteredInvoices.length === 0 && !isLoading && (
         <div className="text-center py-12">
           <p className="text-gray-600">검색 조건에 맞는 청구서가 없습니다.</p>
+          {(searchQuery || statusFilter !== 'all') && (
+            <Button 
+              variant="outline" 
+              className="mt-4" 
+              onClick={clearFilters}
+            >
+              필터 초기화
+            </Button>
+          )}
         </div>
       )}
       </div>
+
+      {/* 청구서 생성 모달 */}
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        title="새 청구서 생성"
+        size="xl"
+        footer={
+          <div className="flex justify-end space-x-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsCreateModalOpen(false)}
+            >
+              취소
+            </Button>
+            <Button
+              type="submit"
+              form="invoice-form"
+              className="min-w-[100px]"
+            >
+              청구서 생성
+            </Button>
+          </div>
+        }
+      >
+        <InvoiceForm
+          onSuccess={handleInvoiceCreated}
+          onCancel={() => setIsCreateModalOpen(false)}
+        />
+      </Modal>
     </DashboardLayout>
   );
 }

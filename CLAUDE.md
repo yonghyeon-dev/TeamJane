@@ -21,21 +21,18 @@ npm run build
 # 린팅 실행
 npm run lint
 
-# 다른 프로젝트에서 테스트용 로컬 패키지 링크
-npm run link
-
-# 로컬 패키지 링크 해제
-npm run unlink
+# 타입 체크 실행
+npm run type-check
 ```
 
 ## 아키텍처 개요
 
 ### 핵심 구조
 
-- **`src/components/ui/`** - TypeScript 정의가 포함된 모든 UI 컴포넌트
-- **`src/lib/theme/`** - 컨텍스트, 프로바이더, 유틸리티를 포함한 완전한 테마 시스템
+- **`src/app/`** - Next.js 앱 라우터 기반 페이지 및 라우팅
+- **`src/components/ui/`** - 재사용 가능한 UI 컴포넌트들
+- **`src/lib/theme/`** - 테마 시스템 (색상, 다크/화이트 테마 지원)
 - **`src/lib/utils.ts`** - 유틸리티 함수 (className 병합을 위한 `cn` 포함)
-- **`src/index.ts`** - 모든 공개 API를 내보내는 메인 진입점
 
 ### 테마 시스템 아키텍처
 
@@ -75,14 +72,14 @@ npm run unlink
 
 주요 컴포넌트: Button, Badge, Card, Input, Avatar, Navbar, Footer, Hero, Status, Typography, Carousel, ColorSelector, ThemeSelector
 
-### 패키지 구조
+### 애플리케이션 구조
 
-라이브러리는 npm 패키지로 설계되었습니다:
+Next.js 앱 라우터 기반의 ERP 시스템입니다:
 
-- **진입점**: `src/index.ts`에서 모든 공개 API 내보내기
-- **패키지 설정**: `@weave/ui-components`로 게시하도록 구성
-- **피어 종속성**: React 18+ 필요
-- **빌드 대상**: 개발용으로 Next.js 사용하지만 모든 React 앱에서 작동
+- **앱 라우터**: `src/app/` 디렉토리 기반 파일 시스템 라우팅
+- **컴포넌트**: 재사용 가능한 UI 컴포넌트 라이브러리
+- **테마 시스템**: 다크/화이트 테마와 커스텀 색상 팔레트 지원
+- **인증**: Supabase 기반 사용자 인증 및 관리
 
 ## 주요 규칙
 
@@ -90,9 +87,9 @@ npm run unlink
 - **한국어 전용**: Claude는 모든 답변을 한국어로만 제공해야 합니다.
 
 ### 가져오기 패턴
-- 컴포넌트: `import { Button, Badge } from "@weave/ui-components"`
-- 테마: `import { ThemeProvider, useTheme } from "@weave/ui-components"`
-- 타입: 모든 컴포넌트 props 타입이 내보내짐
+- UI 컴포넌트: `import Button from "@/components/ui/Button"`
+- 테마: `import { useTheme } from "@/lib/theme/ThemeContext"`
+- 유틸리티: `import { cn } from "@/lib/utils"`
 
 ### CSS 변수 명명 규칙
 - 주요 색상: `--color-primary-*`
@@ -102,41 +99,28 @@ npm run unlink
 
 ### 파일 구조
 - 각 UI 컴포넌트는 `src/components/ui/`에 독립 파일
-- 모든 컴포넌트가 기본 컴포넌트와 TypeScript 타입을 모두 내보냄
-- `src/components/ui/index.ts`에서 깔끔한 가져오기를 위해 모든 것을 재내보내기
+- 각 컴포넌트는 기본 내보내기와 TypeScript 타입을 제공
+- `src/components/ui/index.ts`에서 편의를 위해 재내보내기
 
 ## 개발 워크플로우
 
 ### 새 컴포넌트 추가
 1. `src/components/ui/ComponentName.tsx`에 컴포넌트 파일 생성
-2. `src/components/ui/index.ts`에서 컴포넌트와 타입 내보내기
-3. `src/index.ts`의 메인 내보내기에 추가
-4. props 인터페이스와 테마 통합을 위한 기존 패턴 따르기
+2. 필요시 `src/components/ui/index.ts`에서 컴포넌트 재내보내기
+3. props 인터페이스와 테마 통합을 위한 기존 패턴 따르기
 
 ### 색상 팔레트 추가
 1. `src/lib/theme/constants.ts`의 `THEME_CONSTANTS.colorPalettes`에 추가
 2. `src/lib/theme/types.ts`의 `ColorPaletteId` 타입 업데이트
 3. 개발 서버 재시작
 
-### 다른 프로젝트에서 테스트
-```bash
-# weave 디렉토리에서
-npm run link
+## 테마 시스템 사용법
 
-# 대상 프로젝트에서
-npm link @weave/ui-components
-
-# 대상 프로젝트의 tailwind.config.js content 배열에 추가:
-"./node_modules/@weave/ui-components/src/**/*.{js,ts,jsx,tsx}"
-```
-
-## Next.js 통합
-
-Next.js 프로젝트의 경우 클라이언트 사이드 테마 프로바이더 사용:
+현재 white 테마 + custom1 색상 팔레트가 기본으로 설정되어 있습니다:
 
 ```tsx
 // app/layout.tsx
-import { ClientThemeProvider } from "@weave/ui-components";
+import { ClientThemeProvider } from "@/lib/theme/ClientThemeProvider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -148,6 +132,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   );
 }
 ```
+
+### custom1 색상 팔레트
+- **Primary**: #4ECDC4 (청록색)
+- **Secondary**: #45B7D1 (하늘색)  
+- **Default**: #1A535C (진한 청록색)
 
 ## 빌드 구성
 

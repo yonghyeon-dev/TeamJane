@@ -30,16 +30,16 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [currentTheme, setCurrentTheme] = useState<ThemeType>("dark");
-  const [selectedPaletteId, setSelectedPaletteId] = useState<string>("custom3");
+  const [currentTheme, setCurrentTheme] = useState<ThemeType>("white");
+  const [selectedPaletteId, setSelectedPaletteId] = useState<string>("custom1");
 
-  // 기본 색상 설정 (custom3 팔레트)
+  // 기본 색상 설정 (custom1 팔레트)
   const defaultColors = THEME_CONSTANTS.colorPalettes.find(
-    (p) => p.id === "custom3"
+    (p) => p.id === "custom1"
   )?.colors || {
-    primary: "#EC4899",
-    secondary: "#DB2777",
-    default: "#BE185D",
+    primary: "#4ECDC4",
+    secondary: "#45B7D1", 
+    default: "#1A535C",
   };
 
   const [currentColors, setCurrentColors] =

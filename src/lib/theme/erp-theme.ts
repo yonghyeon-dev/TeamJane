@@ -157,30 +157,63 @@ export const getFinanceColor = (type: string): string => {
 
 // 상태별 배지 스타일
 export const getStatusBadgeClass = (status: string): string => {
-  const baseClass = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-  
   const statusClasses: Record<string, string> = {
-    // 프로젝트 상태
+    // 프로젝트 상태 (대소문자 모두 지원)
     'PENDING': "bg-orange-100 text-orange-800",
+    'pending': "bg-orange-100 text-orange-800",
+    'planning': "bg-gray-100 text-gray-800",
     'IN_PROGRESS': "bg-teal-100 text-teal-800",
-    'FEEDBACK': "bg-purple-100 text-purple-800", 
+    'in-progress': "bg-blue-100 text-blue-800",
+    'FEEDBACK': "bg-purple-100 text-purple-800",
+    'feedback': "bg-purple-100 text-purple-800", 
+    'review': "bg-yellow-100 text-yellow-800",
     'COMPLETED': "bg-green-100 text-green-800",
+    'completed': "bg-green-100 text-green-800",
     'CANCELLED': "bg-red-100 text-red-800",
+    'cancelled': "bg-red-100 text-red-800",
     'ON_HOLD': "bg-gray-100 text-gray-800",
+    'on-hold': "bg-gray-100 text-gray-800",
     
     // 문서 상태
     'DRAFT': "bg-gray-100 text-gray-800",
+    'draft': "bg-gray-100 text-gray-800",
     'SENT': "bg-blue-100 text-blue-800",
+    'sent': "bg-blue-100 text-blue-800",
     'VIEWED': "bg-orange-100 text-orange-800",
+    'viewed': "bg-orange-100 text-orange-800",
+    'approved': "bg-yellow-100 text-yellow-800",
     'SIGNED': "bg-green-100 text-green-800",
+    'signed': "bg-green-100 text-green-800",
     
     // 청구서 상태
     'ISSUED': "bg-blue-100 text-blue-800",
+    'issued': "bg-blue-100 text-blue-800",
     'PAID': "bg-green-100 text-green-800",
+    'paid': "bg-green-100 text-green-800",
     'OVERDUE': "bg-red-100 text-red-800",
+    'overdue': "bg-red-100 text-red-800",
+    
+    // 클라이언트 상태
+    'ACTIVE': "bg-green-100 text-green-800",
+    'active': "bg-green-100 text-green-800",
+    'INACTIVE': "bg-gray-100 text-gray-800",
+    'inactive': "bg-gray-100 text-gray-800",
+    'prospect': "bg-blue-100 text-blue-800",
+    'ARCHIVED': "bg-gray-100 text-gray-600",
+    'archived': "bg-gray-100 text-gray-600",
+    
+    // 우선순위
+    'LOW': "bg-gray-100 text-gray-800",
+    'low': "bg-gray-100 text-gray-800",
+    'MEDIUM': "bg-orange-100 text-orange-800",
+    'medium': "bg-orange-100 text-orange-800",
+    'HIGH': "bg-red-100 text-red-800",
+    'high': "bg-red-100 text-red-800",
+    'URGENT': "bg-red-200 text-red-900",
+    'urgent': "bg-red-200 text-red-900",
   }
   
-  return `${baseClass} ${statusClasses[status] || "bg-gray-100 text-gray-800"}`
+  return statusClasses[status] || "bg-gray-100 text-gray-800"
 }
 
 // 통합된 ERP 테마 객체

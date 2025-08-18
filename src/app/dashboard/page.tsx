@@ -1,11 +1,15 @@
 "use client"
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import MetricCard from '@/components/ui/enhanced/MetricCard'
 import DataTable from '@/components/ui/enhanced/DataTable'
 import { Card, CardContent, CardHeader } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import StatusBadge from '@/components/ui/enhanced/StatusBadge'
+import { useProjectStore, useProjectSelectors } from '@/stores/useProjectStore'
+import { useClientStore, useClientSelectors } from '@/stores/useClientStore'
 import {
   BarChart3,
   TrendingUp,
@@ -15,49 +19,20 @@ import {
   Plus,
   Calendar,
   Clock,
-  DollarSign
+  DollarSign,
+  LoaderIcon
 } from 'lucide-react'
 
-// 임시 데이터
-const recentProjects = [
-  {
-    id: '1',
-    title: 'ABC 스타트업 웹사이트 디자인',
-    client: 'ABC Corp',
-    status: 'IN_PROGRESS',
-    progress: 75,
-    dueDate: '2024-01-15',
-    budget: '₩2,500,000'
-  },
-  {
-    id: '2',
-    title: 'XYZ 모바일 앱 개발',
-    client: 'XYZ Inc',
-    status: 'FEEDBACK',
-    progress: 90,
-    dueDate: '2024-01-20',
-    budget: '₩5,000,000'
-  },
-  {
-    id: '3',
-    title: 'DEF 브랜딩 프로젝트',
-    client: 'DEF Ltd',
-    status: 'PENDING',
-    progress: 25,
-    dueDate: '2024-01-25',
-    budget: '₩1,800,000'
-  }
-]
 
 const projectColumns = [
   {
-    key: 'title',
+    key: 'name',
     title: '프로젝트명',
     sortable: true,
     render: (value: string, row: any) => (
       <div>
         <div className="font-medium text-gray-900">{value}</div>
-        <div className="text-sm text-gray-500">{row.client}</div>
+        <div className="text-sm text-gray-500">{row.client?.name || '클라이언트 정보 없음'}</div>
       </div>
     )
   },
@@ -73,32 +48,114 @@ const projectColumns = [
       <div className="flex items-center space-x-2">
         <div className="w-16 bg-gray-200 rounded-full h-2">
           <div 
-            className="bg-primary-600 h-2 rounded-full" 
-            style={{ width: `${value}%` }}
+            className="bg-teal-500 h-2 rounded-full" 
+            style={{ width: `${value || 0}%` }}
           ></div>
         </div>
-        <span className="text-sm text-gray-600">{value}%</span>
+        <span className="text-sm text-gray-600">{value || 0}%</span>
       </div>
     )
   },
   {
-    key: 'dueDate',
+    key: 'deadline',
     title: '마감일',
     render: (value: string) => (
-      <div className="text-sm text-gray-600">{value}</div>
+      <div className="text-sm text-gray-600">
+        {value ? new Date(value).toLocaleDateString('ko-KR') : '-'}
+      </div>
     )
   },
   {
     key: 'budget',
     title: '예산',
     align: 'right' as const,
-    render: (value: string) => (
-      <div className="font-medium text-gray-900">{value}</div>
+    render: (value: number) => (
+      <div className="font-medium text-gray-900">
+        ₩{Number(value || 0).toLocaleString()}
+      </div>
     )
   }
 ]
 
 export default function DashboardPage() {
+  const router = useRouter()
+  
+  // Zustand 스토어에서 데이터 가져오기
+  const { 
+    projects, 
+    isLoading: projectsLoading, 
+    fetchProjects 
+  } = useProjectStore()
+  
+  const { 
+    clients, 
+    isLoading: clientsLoading, 
+    fetchClients 
+  } = useClientStore()
+  
+  const { projectStats } = useProjectSelectors()
+  const { clientStats } = useClientSelectors()
+  
+  // 데이터 로드
+  useEffect(() => {
+    fetchProjects()
+    fetchClients()
+  }, [fetchProjects, fetchClients])
+  
+  // 최근 5개 프로젝트 (생성일 기준 정렬)
+  const recentProjects = projects
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 5)
+  
+  // 이번 달 완료된 프로젝트 수
+  const thisMonthCompleted = projects.filter(p => {
+    const projectDate = new Date(p.created_at)
+    const now = new Date()
+    return p.status === 'completed' && 
+           projectDate.getMonth() === now.getMonth() && 
+           projectDate.getFullYear() === now.getFullYear()
+  }).length
+  
+  // 이번 주 새 클라이언트 수
+  const thisWeekNewClients = clients.filter(c => {
+    const clientDate = new Date(c.created_at)
+    const now = new Date()
+    const weekStart = new Date(now.setDate(now.getDate() - now.getDay()))
+    return clientDate >= weekStart
+  }).length
+  
+  // 이번 달 총 예산 (완료된 프로젝트만)
+  const thisMonthRevenue = projects
+    .filter(p => {
+      const projectDate = new Date(p.created_at)
+      const now = new Date()
+      return p.status === 'completed' && 
+             projectDate.getMonth() === now.getMonth() && 
+             projectDate.getFullYear() === now.getFullYear()
+    })
+    .reduce((sum, p) => sum + (Number(p.budget) || 0), 0)
+
+  const handleNewProject = () => {
+    router.push('/projects')
+  }
+
+  const handleNewClient = () => {
+    router.push('/clients')
+  }
+
+  const handleNewEstimate = () => {
+    router.push('/documents')
+  }
+
+  const handleTimeTracking = () => {
+    // 시간 기록 기능은 향후 구현
+    alert('시간 기록 기능은 곧 출시됩니다!')
+  }
+
+  const handleViewAllProjects = () => {
+    router.push('/projects')
+  }
+
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6">
@@ -113,7 +170,7 @@ export default function DashboardPage() {
               <Calendar className="w-4 h-4 mr-2" />
               이번 주
             </Button>
-            <Button>
+            <Button onClick={handleNewProject}>
               <Plus className="w-4 h-4 mr-2" />
               새 프로젝트
             </Button>
@@ -124,33 +181,49 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
             title="이번 달 수입"
-            value="₩2,450,000"
-            change="+12.5%"
-            trend="up"
+            value={projectsLoading ? (
+              <LoaderIcon className="w-5 h-5 animate-spin" />
+            ) : (
+              `₩${thisMonthRevenue.toLocaleString()}`
+            )}
+            change="-"
+            trend="neutral"
             icon={<DollarSign className="w-5 h-5 text-green-600" />}
-            description="전월 대비"
+            description="완료된 프로젝트"
           />
           <MetricCard
             title="진행 중인 프로젝트"
-            value="7"
-            change="+2"
-            trend="up"
+            value={projectsLoading ? (
+              <LoaderIcon className="w-5 h-5 animate-spin" />
+            ) : (
+              projectStats.inProgress.toString()
+            )}
+            change="-"
+            trend="neutral"
             icon={<FolderOpen className="w-5 h-5 text-blue-600" />}
             description="개"
           />
           <MetricCard
             title="새 클라이언트"
-            value="3"
-            change="+1"
-            trend="up"
+            value={clientsLoading ? (
+              <LoaderIcon className="w-5 h-5 animate-spin" />
+            ) : (
+              thisWeekNewClients.toString()
+            )}
+            change="-"
+            trend="neutral"
             icon={<Users className="w-5 h-5 text-purple-600" />}
             description="이번 주"
           />
           <MetricCard
             title="완료된 작업"
-            value="24"
-            change="+5"
-            trend="up"
+            value={projectsLoading ? (
+              <LoaderIcon className="w-5 h-5 animate-spin" />
+            ) : (
+              thisMonthCompleted.toString()
+            )}
+            change="-"
+            trend="neutral"
             icon={<BarChart3 className="w-5 h-5 text-orange-600" />}
             description="이번 달"
           />
@@ -163,19 +236,26 @@ export default function DashboardPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <h2 className="text-lg font-semibold text-gray-900">최근 프로젝트</h2>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" onClick={handleViewAllProjects}>
                   전체 보기
                 </Button>
               </CardHeader>
               <CardContent className="p-0">
-                <DataTable
-                  data={recentProjects}
-                  columns={projectColumns}
-                  searchable={false}
-                  actions={false}
-                  pageSize={5}
-                  emptyMessage="진행 중인 프로젝트가 없습니다."
-                />
+                {projectsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <LoaderIcon className="w-6 h-6 animate-spin text-teal-600" />
+                    <span className="ml-2 text-gray-600">로딩 중...</span>
+                  </div>
+                ) : (
+                  <DataTable
+                    data={recentProjects}
+                    columns={projectColumns}
+                    searchable={false}
+                    actions={false}
+                    pageSize={5}
+                    emptyMessage="진행 중인 프로젝트가 없습니다."
+                  />
+                )}
               </CardContent>
             </Card>
           </div>
@@ -188,19 +268,19 @@ export default function DashboardPage() {
                 <h3 className="text-lg font-semibold text-gray-900">빠른 작업</h3>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={handleNewProject}>
                   <Plus className="w-4 h-4 mr-2" />
                   새 프로젝트
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={handleNewClient}>
                   <Users className="w-4 h-4 mr-2" />
                   클라이언트 추가
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={handleNewEstimate}>
                   <FileText className="w-4 h-4 mr-2" />
                   견적서 생성
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={handleTimeTracking}>
                   <Clock className="w-4 h-4 mr-2" />
                   시간 기록
                 </Button>

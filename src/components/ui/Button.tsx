@@ -44,9 +44,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         "hover:opacity-90 focus:ring-text-secondary focus:ring-offset-primary-background"
       ),
       secondary: cn(
-        "bg-transparent border border-transparent",
-        "hover:bg-primary-surfaceHover hover:border-primary-borderSecondary",
-        "focus:ring-text-secondary focus:ring-offset-2"
+        "bg-white text-gray-900 border border-gray-200",
+        "hover:bg-gray-50 hover:border-gray-300 hover:shadow-md",
+        "focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
+        "transition-all duration-200 ease-in-out transform hover:scale-[1.02]"
       ),
       outline: cn(
         "bg-transparent border border-gray-300 text-gray-700",
@@ -87,9 +88,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           styles.border = "none";
           break;
         case "secondary":
-          // 투명 배경, 그림자 효과
-          styles.borderColor = "transparent";
-          styles.boxShadow = `0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)`;
+          // 흰색 배경, 부드러운 그림자 효과
+          styles.backgroundColor = "white";
+          styles.boxShadow = `0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)`;
           break;
         case "outline":
           // outline은 CSS 클래스로 처리

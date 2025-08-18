@@ -17,6 +17,7 @@ export interface NavbarMenuItem {
   label: string;
   href: string;
   active?: boolean;
+  icon?: React.ComponentType<{ className?: string }>;
   children?: NavbarMenuItem[];
 }
 
@@ -25,10 +26,10 @@ const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const variants = {
-      default: "bg-primary-background border-b border-primary-borderSecondary",
+      default: "bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm",
       transparent: "bg-transparent",
       elevated:
-        "bg-primary-surface border-b border-primary-borderSecondary shadow-sm",
+        "bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-lg",
     };
 
     return (
@@ -47,14 +48,14 @@ const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
               {logo || (
                 <div className="flex items-center space-x-2">
                   <Image
-                    src="/logo.png"
-                    alt="Weave Logo"
+                    src="/favicon.ico"
+                    alt="WEAVE Logo"
                     width={32}
                     height={32}
                     className="w-8 h-8"
                   />
-                  <span className="text-text-primary font-semibold text-lg">
-                    Weave
+                  <span className="text-gray-900 font-semibold text-lg">
+                    WEAVE
                   </span>
                 </div>
               )}
@@ -67,13 +68,14 @@ const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
                   key={index}
                   href={item.href}
                   className={cn(
-                    "text-sm font-medium transition-colors duration-fast",
+                    "flex items-center space-x-2 text-sm font-medium transition-colors duration-fast",
                     item.active
-                      ? "text-text-primary"
-                      : "text-text-secondary hover:text-text-primary"
+                      ? "text-gray-900"
+                      : "text-gray-600 hover:text-gray-900"
                   )}
                 >
-                  {item.label}
+                  {item.icon && <item.icon className="w-4 h-4" />}
+                  <span>{item.label}</span>
                 </a>
               ))}
             </div>
@@ -83,10 +85,10 @@ const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
               {actions || (
                 <>
                   <Button variant="secondary" size="sm">
-                    Sign In
+                    로그인
                   </Button>
                   <Button variant="primary" size="sm">
-                    Get Started
+                    무료 시작
                   </Button>
                 </>
               )}
@@ -125,21 +127,22 @@ const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
 
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
-            <div className="md:hidden border-t border-primary-borderSecondary py-4">
+            <div className="md:hidden border-t border-gray-200 py-4">
               <div className="flex flex-col space-y-4">
                 {menuItems.map((item, index) => (
                   <a
                     key={index}
                     href={item.href}
                     className={cn(
-                      "text-sm font-medium transition-colors duration-fast",
+                      "flex items-center space-x-3 px-4 text-sm font-medium transition-colors duration-fast",
                       item.active
-                        ? "text-text-primary"
-                        : "text-text-secondary hover:text-text-primary"
+                        ? "text-gray-900"
+                        : "text-gray-600 hover:text-gray-900"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    {item.label}
+                    {item.icon && <item.icon className="w-4 h-4" />}
+                    <span>{item.label}</span>
                   </a>
                 ))}
               </div>

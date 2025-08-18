@@ -67,9 +67,8 @@ const Hero = React.forwardRef<HTMLElement, HeroProps>(
                 <Typography
                   variant="p"
                   size="lg"
-                  color="accent"
                   weight="medium"
-                  className="tracking-wide"
+                  className="tracking-wide text-white"
                 >
                   {subtitle}
                 </Typography>
@@ -80,7 +79,7 @@ const Hero = React.forwardRef<HTMLElement, HeroProps>(
                   variant="h1"
                   size="4xl"
                   weight="bold"
-                  className="leading-tight"
+                  className="leading-tight text-white"
                 >
                   {title}
                 </Typography>
@@ -89,8 +88,7 @@ const Hero = React.forwardRef<HTMLElement, HeroProps>(
                   <Typography
                     variant="p"
                     size="xl"
-                    color="secondary"
-                    className="max-w-2xl"
+                    className="max-w-2xl text-white/90"
                   >
                     {description}
                   </Typography>
@@ -106,12 +104,12 @@ const Hero = React.forwardRef<HTMLElement, HeroProps>(
                   )}
                 >
                   {primaryAction && (
-                    <Button variant="secondary" size="lg" asChild>
+                    <Button variant="secondary" size="lg" asChild className="text-white border-white/30 hover:bg-white/10">
                       <a href={primaryAction.href}>{primaryAction.label}</a>
                     </Button>
                   )}
                   {secondaryAction && (
-                    <Button variant="primary" size="lg" asChild>
+                    <Button variant="primary" size="lg" asChild className="bg-white/10 text-white border-white/30 hover:bg-white/20">
                       <a href={secondaryAction.href}>{secondaryAction.label}</a>
                     </Button>
                   )}
