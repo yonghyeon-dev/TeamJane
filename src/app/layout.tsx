@@ -6,7 +6,6 @@ import { AuthProvider } from "@/lib/auth/auth-context";
 import { ErrorProvider } from "@/contexts/ErrorContext";
 import { ReactQueryProvider } from "@/lib/react-query/provider";
 import { Analytics } from "@vercel/analytics/react";
-import { MonitoringProvider } from "@/components/providers/MonitoringProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -60,17 +59,15 @@ export default function RootLayout({
         <meta name="theme-color" content="#4ECDC4" />
       </head>
       <body className={`${inter.className} antialiased font-primary bg-white`}>
-        <MonitoringProvider>
-          <ReactQueryProvider>
-            <ErrorProvider>
-              <AuthProvider>
-                <ClientThemeProvider defaultTheme="white" defaultPaletteId="custom1">
-                  {children}
-                </ClientThemeProvider>
-              </AuthProvider>
-            </ErrorProvider>
-          </ReactQueryProvider>
-        </MonitoringProvider>
+        <ReactQueryProvider>
+          <ErrorProvider>
+            <AuthProvider>
+              <ClientThemeProvider defaultTheme="white" defaultPaletteId="custom1">
+                {children}
+              </ClientThemeProvider>
+            </AuthProvider>
+          </ErrorProvider>
+        </ReactQueryProvider>
         <Analytics />
       </body>
     </html>

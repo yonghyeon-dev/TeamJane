@@ -7,7 +7,7 @@ test.describe('Projects Management', () => {
     // Skip tests if authentication is required
     const isAuthPage = await page.locator('input[type="email"]').isVisible({ timeout: 3000 })
     if (isAuthPage) {
-      test.skip('Authentication required - skipping projects tests')
+      test.skip('Authentication required - skipping projects tests', () => {})
     }
   })
 
@@ -97,7 +97,7 @@ test.describe('Project Creation Flow', () => {
     // Skip if authentication required
     const isAuthPage = await page.locator('input[type="email"]').isVisible({ timeout: 2000 })
     if (isAuthPage) {
-      test.skip('Authentication required')
+      test.skip('Authentication required', () => {})
     }
     
     // Open create project modal/form

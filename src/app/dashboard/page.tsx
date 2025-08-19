@@ -142,11 +142,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
             title="이번 달 수입"
-            value={isLoading ? (
-              <LoaderIcon className="w-5 h-5 animate-spin" />
-            ) : (
-              `₩${dashboardMetrics.thisMonthRevenue.toLocaleString()}`
-            )}
+            value={isLoading ? "로딩 중..." : `₩${dashboardMetrics.thisMonthRevenue.toLocaleString()}`}
             change="-"
             trend="neutral"
             icon={<DollarSign className="w-5 h-5 text-green-600" />}
@@ -154,11 +150,7 @@ export default function DashboardPage() {
           />
           <MetricCard
             title="진행 중인 프로젝트"
-            value={isLoading ? (
-              <LoaderIcon className="w-5 h-5 animate-spin" />
-            ) : (
-              dashboardMetrics.inProgressProjects.toString()
-            )}
+            value={isLoading ? "로딩 중..." : dashboardMetrics.inProgressProjects.toString()}
             change="-"
             trend="neutral"
             icon={<FolderOpen className="w-5 h-5 text-blue-600" />}
@@ -166,11 +158,7 @@ export default function DashboardPage() {
           />
           <MetricCard
             title="새 클라이언트"
-            value={isLoading ? (
-              <LoaderIcon className="w-5 h-5 animate-spin" />
-            ) : (
-              dashboardMetrics.thisWeekNewClients.toString()
-            )}
+            value={isLoading ? "로딩 중..." : dashboardMetrics.thisWeekNewClients.toString()}
             change="-"
             trend="neutral"
             icon={<Users className="w-5 h-5 text-purple-600" />}
@@ -178,11 +166,7 @@ export default function DashboardPage() {
           />
           <MetricCard
             title="완료된 작업"
-            value={isLoading ? (
-              <LoaderIcon className="w-5 h-5 animate-spin" />
-            ) : (
-              dashboardMetrics.thisMonthCompleted.toString()
-            )}
+            value={isLoading ? "로딩 중..." : dashboardMetrics.thisMonthCompleted.toString()}
             change="-"
             trend="neutral"
             icon={<BarChart3 className="w-5 h-5 text-orange-600" />}

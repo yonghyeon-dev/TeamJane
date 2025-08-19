@@ -88,9 +88,9 @@ export default function ProjectsPage() {
         aValue = a.name.toLowerCase();
         bValue = b.name.toLowerCase();
         break;
-      case 'deadline':
-        aValue = a.deadline ? new Date(a.deadline).getTime() : 0;
-        bValue = b.deadline ? new Date(b.deadline).getTime() : 0;
+      case 'due_date':
+        aValue = a.due_date ? new Date(a.due_date).getTime() : 0;
+        bValue = b.due_date ? new Date(b.due_date).getTime() : 0;
         break;
       case 'budget':
         aValue = Number(a.budget) || 0;
@@ -206,7 +206,7 @@ export default function ProjectsPage() {
           <option value="completed">완료</option>
         </select>
         <Button 
-          variant={showFilters ? "default" : "outline"} 
+          variant={showFilters ? "primary" : "outline"} 
           className="gap-2" 
           disabled={isLoading}
           onClick={() => setShowFilters(!showFilters)}
@@ -384,7 +384,7 @@ export default function ProjectsPage() {
                 <div className="flex justify-between items-center text-sm text-gray-600">
                   <div className="flex items-center gap-1">
                     <CalendarIcon className="h-4 w-4" />
-                    {project.deadline ? new Date(project.deadline).toLocaleDateString('ko-KR') : '마감일 없음'}
+                    {project.due_date ? new Date(project.due_date).toLocaleDateString('ko-KR') : '마감일 없음'}
                   </div>
                   <div className="flex items-center gap-1">
                     <DollarSignIcon className="h-4 w-4" />

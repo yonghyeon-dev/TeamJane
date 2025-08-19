@@ -12,6 +12,7 @@ export class DocumentsAPI {
     type?: string
     status?: string
     search?: string
+    signal?: AbortSignal
   }): Promise<PaginatedResponse<DocumentWithRelations>> {
     try {
       const { page = 1, limit = 10, type, status, search } = params || {}

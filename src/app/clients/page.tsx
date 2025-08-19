@@ -188,7 +188,7 @@ export default function ClientsPage() {
           <option value="potential">잠재고객</option>
         </select>
         <Button 
-          variant={showFilters ? "default" : "outline"} 
+          variant={showFilters ? "primary" : "outline"} 
           className="gap-2" 
           disabled={isLoading}
           onClick={() => setShowFilters(!showFilters)}

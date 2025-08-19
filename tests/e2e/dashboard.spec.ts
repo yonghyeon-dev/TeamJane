@@ -7,7 +7,7 @@ test.describe('Dashboard Functionality', () => {
     // Skip tests if authentication is required
     const isAuthPage = await page.locator('input[type="email"]').isVisible({ timeout: 3000 })
     if (isAuthPage) {
-      test.skip('Authentication required - skipping dashboard tests')
+      test.skip('Authentication required - skipping dashboard tests', () => {})
     }
   })
 

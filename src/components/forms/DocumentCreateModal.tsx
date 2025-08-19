@@ -106,17 +106,17 @@ const DocumentCreateModal: React.FC<DocumentCreateModalProps> = ({
       // 문서 메타데이터 생성
       const documentData: Omit<DocumentInsert, 'user_id'> = {
         title: data.title,
-        type: data.type,
+        type: data.type as 'quote' | 'contract' | 'invoice' | 'report' | 'general',
         project_id: data.project_id || null,
         client_id: data.client_id || null,
         file_url: fileUrl,
         file_size: fileSize,
         mime_type: mimeType,
-        status: 'draft'
+        status: 'draft' as 'draft' | 'sent' | 'approved' | 'rejected'
       }
 
       setUploadProgress(90)
-      await createDocument(documentData)
+      await createDocument(documentData as any)
       setUploadProgress(100)
 
       // 성공 시 폼 리셋하고 모달 닫기

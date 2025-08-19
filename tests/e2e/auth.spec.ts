@@ -42,7 +42,7 @@ test.describe('Navigation and Layout', () => {
     const isAuthPage = await page.locator('input[type="email"]').isVisible({ timeout: 2000 })
     
     if (isAuthPage) {
-      test.skip('Skipping navigation test - authentication required')
+      test.skip('Skipping navigation test - authentication required', () => {})
     }
     
     // Check for main navigation elements

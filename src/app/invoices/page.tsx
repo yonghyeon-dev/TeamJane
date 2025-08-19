@@ -209,7 +209,7 @@ export default function InvoicesPage() {
           <option value="paid">결제완료</option>
         </select>
         <Button 
-          variant={showFilters ? "default" : "outline"} 
+          variant={showFilters ? "primary" : "outline"} 
           className="gap-2" 
           disabled={isLoading}
           onClick={() => setShowFilters(!showFilters)}
@@ -383,7 +383,7 @@ export default function InvoicesPage() {
                           <span className="font-medium">{invoice.invoice_number || '-'}</span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className="text-sm">{invoice.project?.client?.name || '클라이언트 정보 없음'}</span>
+                          <span className="text-sm">클라이언트 정보 없음</span>
                         </td>
                         <td className="py-3 px-4">
                           <span className="text-sm">{invoice.project?.name || '프로젝트 정보 없음'}</span>

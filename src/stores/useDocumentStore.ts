@@ -3,6 +3,9 @@ import { immer } from 'zustand/middleware/immer'
 import { DocumentsAPI } from '@/lib/api/documents'
 import type { Document, DocumentWithRelations } from '@/types/database'
 
+// Request cancellation을 위한 AbortController 관리
+let abortController: AbortController | null = null
+
 interface DocumentStoreState {
   documents: DocumentWithRelations[]
   isLoading: boolean
@@ -50,6 +53,12 @@ export const useDocumentStore = create<DocumentStore>()(
 
     // Data fetching
     fetchDocuments: async () => {
+      // 이전 요청 취소
+      if (abortController) {
+        abortController.abort()
+      }
+      abortController = new AbortController()
+
       set((state) => {
         state.isLoading = true
         state.error = null
@@ -60,7 +69,13 @@ export const useDocumentStore = create<DocumentStore>()(
           search: get().searchQuery,
           type: get().typeFilter === 'all' ? undefined : get().typeFilter,
           status: get().statusFilter === 'all' ? undefined : get().statusFilter,
+          signal: abortController.signal
         })
+
+        // 요청이 중단되었는지 확인
+        if (abortController.signal.aborted) {
+          return
+        }
 
         if (response.success && response.data) {
           set((state) => {
@@ -71,10 +86,18 @@ export const useDocumentStore = create<DocumentStore>()(
           throw new Error(response.error || 'Failed to fetch documents')
         }
       } catch (error) {
-        set((state) => {
-          state.error = error instanceof Error ? error.message : 'Unknown error'
-          state.isLoading = false
-        })
+        // AbortError는 무시 (의도적인 취소)
+        if (error instanceof Error && error.name === 'AbortError') {
+          return
+        }
+
+        // 컴포넌트가 언마운트된 후에는 상태 업데이트 하지 않음
+        if (!abortController?.signal.aborted) {
+          set((state) => {
+            state.error = error instanceof Error ? error.message : 'Unknown error'
+            state.isLoading = false
+          })
+        }
       }
     },
 

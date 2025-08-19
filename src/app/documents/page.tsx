@@ -109,11 +109,11 @@ export default function DocumentsPage() {
     }
   }
 
-  const handleDownloadDocument = (document: DocumentWithRelations) => {
-    if (document.file_url) {
+  const handleDownloadDocument = (doc: DocumentWithRelations) => {
+    if (doc.file_url) {
       const link = document.createElement('a')
-      link.href = document.file_url
-      link.download = document.title
+      link.href = doc.file_url
+      link.download = doc.title
       link.click()
     } else {
       alert('다운로드할 파일이 없습니다.')
@@ -351,7 +351,7 @@ export default function DocumentsPage() {
                       </td>
                       <td className="py-3 px-4">
                         <span className="text-sm">
-                          {doc.client?.name || doc.project?.client?.name || '-'}
+                          {doc.client?.name || doc.project?.name || '-'}
                         </span>
                       </td>
                       <td className="py-3 px-4">

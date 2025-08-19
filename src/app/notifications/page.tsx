@@ -328,7 +328,9 @@ export default function NotificationsPage() {
                               onClick={() => {
                                 markAsRead(notification.id);
                                 // TODO: Navigate to action URL
-                                window.location.href = notification.actionUrl;
+                                if (notification.actionUrl) {
+                                  window.location.href = notification.actionUrl;
+                                }
                               }}
                             >
                               보기

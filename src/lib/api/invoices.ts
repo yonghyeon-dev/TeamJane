@@ -11,6 +11,7 @@ export class InvoicesAPI {
     limit?: number
     status?: string
     search?: string
+    signal?: AbortSignal
   }): Promise<PaginatedResponse<InvoiceWithProjectAndClient>> {
     try {
       const { page = 1, limit = 10, status, search } = params || {}

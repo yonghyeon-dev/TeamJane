@@ -3,6 +3,9 @@ import { immer } from 'zustand/middleware/immer'
 import { ClientsAPI } from '@/lib/api/clients'
 import type { Client } from '@/types/database'
 
+// Request cancellation을 위한 AbortController 관리
+let abortController: AbortController | null = null
+
 interface ClientStoreState {
   clients: Client[]
   isLoading: boolean
@@ -49,6 +52,12 @@ export const useClientStore = create<ClientStore>()(
         return
       }
 
+      // 이전 요청 취소
+      if (abortController) {
+        abortController.abort()
+      }
+      abortController = new AbortController()
+
       set((state) => {
         state.isLoading = true
         state.error = null
@@ -57,8 +66,14 @@ export const useClientStore = create<ClientStore>()(
       try {
         // 검색과 필터는 클라이언트 사이드에서 처리하므로 모든 데이터 가져오기
         const response = await ClientsAPI.getClients({
-          limit: 1000 // 충분히 큰 값으로 모든 데이터 가져오기
+          limit: 1000, // 충분히 큰 값으로 모든 데이터 가져오기
+          signal: abortController.signal // AbortSignal 전달
         })
+
+        // 요청이 중단되었는지 확인
+        if (abortController.signal.aborted) {
+          return
+        }
 
         if (response.success && response.data) {
           set((state) => {
@@ -69,10 +84,18 @@ export const useClientStore = create<ClientStore>()(
           throw new Error(response.error || 'Failed to fetch clients')
         }
       } catch (error) {
-        set((state) => {
-          state.error = error instanceof Error ? error.message : 'Unknown error'
-          state.isLoading = false
-        })
+        // AbortError는 무시 (의도적인 취소)
+        if (error instanceof Error && error.name === 'AbortError') {
+          return
+        }
+
+        // 컴포넌트가 언마운트된 후에는 상태 업데이트 하지 않음
+        if (!abortController?.signal.aborted) {
+          set((state) => {
+            state.error = error instanceof Error ? error.message : 'Unknown error'
+            state.isLoading = false
+          })
+        }
       }
     },
 
