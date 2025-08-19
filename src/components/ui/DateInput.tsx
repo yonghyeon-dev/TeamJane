@@ -253,7 +253,7 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(({
       )}
     </div>
   )
-)
+})
 
 DateInput.displayName = 'DateInput'
 
