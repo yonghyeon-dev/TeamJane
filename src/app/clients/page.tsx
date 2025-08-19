@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
@@ -65,52 +65,41 @@ export default function ClientsPage() {
     loadClients();
   }, [fetchClients, handleApiError]);
 
-  // 검색어 debounce 처리
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchQuery !== '') {
-        fetchClients();
+  // 검색어와 필터링은 이제 클라이언트 사이드에서만 처리 (API 호출 제거)
+  // useEffect로 API 호출하던 부분 제거됨
+
+  // useMemo로 정렬 최적화 - 의존성이 변경될 때만 재계산
+  const sortedFilteredClients = useMemo(() => {
+    return [...filteredClients].sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy) {
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'company':
+          aValue = (a.company || '').toLowerCase();
+          bValue = (b.company || '').toLowerCase();
+          break;
+        case 'email':
+          aValue = (a.email || '').toLowerCase();
+          bValue = (b.email || '').toLowerCase();
+          break;
+        case 'created_at':
+        default:
+          aValue = new Date(a.created_at).getTime();
+          bValue = new Date(b.created_at).getTime();
+          break;
       }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery, fetchClients]);
-
-  // 상태 필터 변경 시 즉시 검색
-  useEffect(() => {
-    fetchClients();
-  }, [statusFilter, fetchClients]);
-
-  // 정렬된 클라이언트 목록
-  const sortedFilteredClients = [...filteredClients].sort((a, b) => {
-    let aValue, bValue;
-    
-    switch (sortBy) {
-      case 'name':
-        aValue = a.name.toLowerCase();
-        bValue = b.name.toLowerCase();
-        break;
-      case 'company':
-        aValue = (a.company || '').toLowerCase();
-        bValue = (b.company || '').toLowerCase();
-        break;
-      case 'email':
-        aValue = (a.email || '').toLowerCase();
-        bValue = (b.email || '').toLowerCase();
-        break;
-      case 'created_at':
-      default:
-        aValue = new Date(a.created_at).getTime();
-        bValue = new Date(b.created_at).getTime();
-        break;
-    }
-    
-    if (sortOrder === 'asc') {
-      return aValue > bValue ? 1 : -1;
-    } else {
-      return aValue < bValue ? 1 : -1;
-    }
-  });
+      
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  }, [filteredClients, sortBy, sortOrder]);
 
   const clearFilters = () => {
     setStatusFilter('all');

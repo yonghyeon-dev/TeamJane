@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, forwardRef } from 'react'
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import Input from './Input'
 import Button from './Button'
@@ -16,9 +16,10 @@ interface DateInputProps {
   required?: boolean
   name?: string
   id?: string
+  onBlur?: () => void
 }
 
-const DateInput: React.FC<DateInputProps> = ({
+const DateInput = forwardRef<HTMLInputElement, DateInputProps>(({
   value = '',
   onChange,
   placeholder = 'YYYY-MM-DD',
@@ -26,8 +27,9 @@ const DateInput: React.FC<DateInputProps> = ({
   disabled = false,
   required = false,
   name,
-  id
-}) => {
+  id,
+  onBlur
+}, ref) => {
   const [isOpen, setIsOpen] = useState(false)
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const containerRef = useRef<HTMLDivElement>(null)
@@ -35,7 +37,7 @@ const DateInput: React.FC<DateInputProps> = ({
   // 선택된 날짜
   const selectedDate = value ? new Date(value) : null
 
-  // 외부 클릭 감지
+  // 외부 클릭 감지 - 메모리 누수 방지 개선
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -43,9 +45,15 @@ const DateInput: React.FC<DateInputProps> = ({
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside, { passive: true })
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
 
   // 날짜 변경 핸들러
   const handleDateChange = (date: Date) => {
@@ -57,6 +65,11 @@ const DateInput: React.FC<DateInputProps> = ({
   // 입력 필드 변경 핸들러
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange?.(e.target.value)
+  }
+
+  // 블러 핸들러
+  const handleBlur = () => {
+    onBlur?.()
   }
 
   // 월 변경
@@ -149,9 +162,11 @@ const DateInput: React.FC<DateInputProps> = ({
     <div ref={containerRef} className="relative">
       <div className="relative">
         <Input
+          ref={ref}
           type="date"
           value={value}
           onChange={handleInputChange}
+          onBlur={handleBlur}
           placeholder={placeholder}
           className={cn('pr-10', className)}
           disabled={disabled}
@@ -238,6 +253,8 @@ const DateInput: React.FC<DateInputProps> = ({
       )}
     </div>
   )
-}
+)
+
+DateInput.displayName = 'DateInput'
 
 export default DateInput

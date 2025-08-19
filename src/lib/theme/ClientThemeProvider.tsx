@@ -1,6 +1,6 @@
 "use client";
 
-import { ThemeProvider } from "./ThemeContext";
+import { ThemeProvider, ThemeType } from "./ThemeContext";
 
 export const ClientThemeProvider = ({
   children,
@@ -8,8 +8,12 @@ export const ClientThemeProvider = ({
   defaultPaletteId,
 }: {
   children: React.ReactNode;
-  defaultTheme?: string;
+  defaultTheme?: ThemeType;
   defaultPaletteId?: string;
 }) => {
-  return <ThemeProvider>{children}</ThemeProvider>;
+  return (
+    <ThemeProvider defaultTheme={defaultTheme} defaultPaletteId={defaultPaletteId}>
+      {children}
+    </ThemeProvider>
+  );
 };

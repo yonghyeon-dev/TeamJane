@@ -8,8 +8,7 @@ import DataTable from '@/components/ui/enhanced/DataTable'
 import { Card, CardContent, CardHeader } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import StatusBadge from '@/components/ui/enhanced/StatusBadge'
-import { useProjectStore, useProjectSelectors } from '@/stores/useProjectStore'
-import { useClientStore, useClientSelectors } from '@/stores/useClientStore'
+import { useDashboardData } from '@/lib/react-query/hooks/useDashboard'
 import {
   BarChart3,
   TrendingUp,
@@ -80,60 +79,22 @@ const projectColumns = [
 export default function DashboardPage() {
   const router = useRouter()
   
-  // Zustand 스토어에서 데이터 가져오기
-  const { 
-    projects, 
-    isLoading: projectsLoading, 
-    fetchProjects 
-  } = useProjectStore()
-  
-  const { 
-    clients, 
-    isLoading: clientsLoading, 
-    fetchClients 
-  } = useClientStore()
-  
-  const { projectStats } = useProjectSelectors()
-  const { clientStats } = useClientSelectors()
-  
-  // 데이터 로드
-  useEffect(() => {
-    fetchProjects()
-    fetchClients()
-  }, [fetchProjects, fetchClients])
+  // React Query를 사용한 데이터 가져오기 (캐싱 적용됨)
+  const {
+    isLoading,
+    error,
+    projects,
+    clients,
+    projectStats,
+    clientStats,
+    dashboardMetrics,
+    refetch
+  } = useDashboardData()
   
   // 최근 5개 프로젝트 (생성일 기준 정렬)
   const recentProjects = projects
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5)
-  
-  // 이번 달 완료된 프로젝트 수
-  const thisMonthCompleted = projects.filter(p => {
-    const projectDate = new Date(p.created_at)
-    const now = new Date()
-    return p.status === 'completed' && 
-           projectDate.getMonth() === now.getMonth() && 
-           projectDate.getFullYear() === now.getFullYear()
-  }).length
-  
-  // 이번 주 새 클라이언트 수
-  const thisWeekNewClients = clients.filter(c => {
-    const clientDate = new Date(c.created_at)
-    const now = new Date()
-    const weekStart = new Date(now.setDate(now.getDate() - now.getDay()))
-    return clientDate >= weekStart
-  }).length
-  
-  // 이번 달 총 예산 (완료된 프로젝트만)
-  const thisMonthRevenue = projects
-    .filter(p => {
-      const projectDate = new Date(p.created_at)
-      const now = new Date()
-      return p.status === 'completed' && 
-             projectDate.getMonth() === now.getMonth() && 
-             projectDate.getFullYear() === now.getFullYear()
-    })
-    .reduce((sum, p) => sum + (Number(p.budget) || 0), 0)
 
   const handleNewProject = () => {
     router.push('/projects')
@@ -181,10 +142,10 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
             title="이번 달 수입"
-            value={projectsLoading ? (
+            value={isLoading ? (
               <LoaderIcon className="w-5 h-5 animate-spin" />
             ) : (
-              `₩${thisMonthRevenue.toLocaleString()}`
+              `₩${dashboardMetrics.thisMonthRevenue.toLocaleString()}`
             )}
             change="-"
             trend="neutral"
@@ -193,10 +154,10 @@ export default function DashboardPage() {
           />
           <MetricCard
             title="진행 중인 프로젝트"
-            value={projectsLoading ? (
+            value={isLoading ? (
               <LoaderIcon className="w-5 h-5 animate-spin" />
             ) : (
-              projectStats.inProgress.toString()
+              dashboardMetrics.inProgressProjects.toString()
             )}
             change="-"
             trend="neutral"
@@ -205,10 +166,10 @@ export default function DashboardPage() {
           />
           <MetricCard
             title="새 클라이언트"
-            value={clientsLoading ? (
+            value={isLoading ? (
               <LoaderIcon className="w-5 h-5 animate-spin" />
             ) : (
-              thisWeekNewClients.toString()
+              dashboardMetrics.thisWeekNewClients.toString()
             )}
             change="-"
             trend="neutral"
@@ -217,10 +178,10 @@ export default function DashboardPage() {
           />
           <MetricCard
             title="완료된 작업"
-            value={projectsLoading ? (
+            value={isLoading ? (
               <LoaderIcon className="w-5 h-5 animate-spin" />
             ) : (
-              thisMonthCompleted.toString()
+              dashboardMetrics.thisMonthCompleted.toString()
             )}
             change="-"
             trend="neutral"
@@ -241,10 +202,14 @@ export default function DashboardPage() {
                 </Button>
               </CardHeader>
               <CardContent className="p-0">
-                {projectsLoading ? (
+                {isLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <LoaderIcon className="w-6 h-6 animate-spin text-teal-600" />
                     <span className="ml-2 text-gray-600">로딩 중...</span>
+                  </div>
+                ) : error ? (
+                  <div className="flex items-center justify-center py-8">
+                    <span className="text-red-600">데이터 로드 중 오류가 발생했습니다.</span>
                   </div>
                 ) : (
                   <DataTable

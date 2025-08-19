@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Button from '@/components/ui/Button';
@@ -64,6 +64,7 @@ export default function InvoiceForm({ onSuccess, onCancel, initialData, renderFo
     handleSubmit,
     watch,
     setValue,
+    control,
     formState: { errors, isSubmitting },
     reset
   } = useForm<InvoiceFormData>({
@@ -212,9 +213,15 @@ export default function InvoiceForm({ onSuccess, onCancel, initialData, renderFo
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 발행일 *
               </label>
-              <DateInput
-                {...register('issue_date')}
-                placeholder="발행일을 선택하세요"
+              <Controller
+                name="issue_date"
+                control={control}
+                render={({ field }) => (
+                  <DateInput
+                    {...field}
+                    placeholder="발행일을 선택하세요"
+                  />
+                )}
               />
               {errors.issue_date && (
                 <p className="mt-1 text-sm text-red-600">{errors.issue_date.message}</p>
@@ -225,9 +232,15 @@ export default function InvoiceForm({ onSuccess, onCancel, initialData, renderFo
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 마감일 *
               </label>
-              <DateInput
-                {...register('due_date')}
-                placeholder="마감일을 선택하세요"
+              <Controller
+                name="due_date"
+                control={control}
+                render={({ field }) => (
+                  <DateInput
+                    {...field}
+                    placeholder="마감일을 선택하세요"
+                  />
+                )}
               />
               {errors.due_date && (
                 <p className="mt-1 text-sm text-red-600">{errors.due_date.message}</p>

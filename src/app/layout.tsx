@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClientThemeProvider } from "@/lib/theme/ClientThemeProvider";
 import { AuthProvider } from "@/lib/auth/auth-context";
 import { ErrorProvider } from "@/contexts/ErrorContext";
+import { ReactQueryProvider } from "@/lib/react-query/provider";
 import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({
@@ -58,13 +59,15 @@ export default function RootLayout({
         <meta name="theme-color" content="#4ECDC4" />
       </head>
       <body className={`${inter.className} antialiased font-primary bg-white`}>
-        <ErrorProvider>
-          <AuthProvider>
-            <ClientThemeProvider defaultTheme="white" defaultPaletteId="custom1">
-              {children}
-            </ClientThemeProvider>
-          </AuthProvider>
-        </ErrorProvider>
+        <ReactQueryProvider>
+          <ErrorProvider>
+            <AuthProvider>
+              <ClientThemeProvider defaultTheme="white" defaultPaletteId="custom1">
+                {children}
+              </ClientThemeProvider>
+            </AuthProvider>
+          </ErrorProvider>
+        </ReactQueryProvider>
         <Analytics />
       </body>
     </html>

@@ -42,17 +42,22 @@ export const useClientStore = create<ClientStore>()(
     searchQuery: '',
     statusFilter: 'all',
 
-    // Data fetching
-    fetchClients: async () => {
+    // Data fetching - 서버 필터링 제거하고 클라이언트 사이드 필터링으로 변경
+    fetchClients: async (forceRefresh = false) => {
+      // 이미 로딩 중이거나 데이터가 있고 강제 새로고침이 아닌 경우 스킵
+      if (!forceRefresh && (get().isLoading || get().clients.length > 0)) {
+        return
+      }
+
       set((state) => {
         state.isLoading = true
         state.error = null
       })
 
       try {
+        // 검색과 필터는 클라이언트 사이드에서 처리하므로 모든 데이터 가져오기
         const response = await ClientsAPI.getClients({
-          search: get().searchQuery,
-          status: get().statusFilter === 'all' ? undefined : get().statusFilter,
+          limit: 1000 // 충분히 큰 값으로 모든 데이터 가져오기
         })
 
         if (response.success && response.data) {

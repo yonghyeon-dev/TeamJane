@@ -43,8 +43,22 @@ export async function middleware(req: NextRequest) {
 
     return res
   } catch (error) {
-    // Supabase 연결 오류 시 그냥 요청을 통과시킴
-    console.error('Middleware error:', error)
+    // 인증 처리 중 오류 발생 시 안전한 처리
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Middleware error:', error)
+    }
+    
+    // 보호된 경로에서 오류 발생 시 로그인 페이지로 리다이렉트
+    const protectedPaths = ['/dashboard', '/projects', '/clients', '/documents', '/invoices', '/settings']
+    const isProtectedPath = protectedPaths.some(path => req.nextUrl.pathname.startsWith(path))
+    
+    if (isProtectedPath) {
+      const redirectUrl = new URL('/auth/login', req.url)
+      redirectUrl.searchParams.set('redirect', req.nextUrl.pathname)
+      redirectUrl.searchParams.set('error', 'auth_error')
+      return NextResponse.redirect(redirectUrl)
+    }
+    
     return res
   }
 }

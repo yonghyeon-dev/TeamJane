@@ -31,7 +31,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const { currentColors } = useTheme();
+    // useTheme을 안전하게 사용 - ThemeProvider가 없어도 동작하도록
+    let currentColors = { primary: "#4ECDC4", secondary: "#45B7D1", default: "#1A535C" };
+    try {
+      const theme = useTheme();
+      currentColors = theme.currentColors;
+    } catch (error) {
+      // ThemeProvider가 설정되지 않은 경우 기본값 사용
+      console.warn("ThemeProvider not found, using default colors");
+    }
 
     const baseStyles = cn(
       "inline-flex items-center justify-center font-medium transition-all duration-fast focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",

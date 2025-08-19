@@ -62,7 +62,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     setNotificationsOpen(!notificationsOpen)
   }
 
-  // 외부 클릭 시 알림 닫기
+  // 외부 클릭 시 알림 닫기 - 메모리 누수 방지 개선
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement
@@ -71,10 +71,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       }
     }
 
+    // 이벤트 리스너 추가/제거 로직 개선
     if (notificationsOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
+      // 약간의 지연을 두어 현재 클릭이 처리된 후 리스너 등록
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside, { passive: true })
+      }, 0)
+
+      return () => {
+        clearTimeout(timeoutId)
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
     }
 
+    // notificationsOpen이 false일 때도 cleanup 함수 반환
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }

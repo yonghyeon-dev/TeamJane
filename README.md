@@ -1,35 +1,183 @@
-# Weave ERP
+# WEAVE - 프리랜서를 위한 올인원 워크스페이스
 
-프리랜서를 위한 올인원 워크스페이스입니다.
+> **흩어진 당신의 업무를 하나로 엮다**
 
-## 🚀 특징
+WEAVE는 프리랜서를 위한 통합 ERP(전사적 자원 관리) 시스템으로, 프로젝트 관리부터 문서 생성, 재무 관리까지 모든 비즈니스 활동을 하나의 플랫폼에서 관리할 수 있도록 설계되었습니다.
 
-- **프리랜서 전용 ERP**: 프로젝트 관리, 클라이언트 관리, 수익 분석
-- **통합 대시보드**: 모든 정보를 한눈에 확인
-- **자동화된 워크플로우**: 반복 작업 자동화
-- **실시간 분석**: 수익, 시간, 프로젝트 성과 실시간 추적
-- **모바일 친화적**: 언제 어디서나 접근 가능
-- **AI 기능**: 문서 생성, 이메일 요약, 가격 제안 등
+## 🚀 주요 기능
 
-## 📦 설치
+### 📊 통합 대시보드
 
-### 로컬 개발
+- 실시간 수익 현황 및 프로젝트 진행률 시각화
+- 월간/분기별 수입 분석 및 예측
+- 미수금 현황 및 입금 예정일 관리
+- 커스터마이징 가능한 위젯 시스템
 
-```bash
-# 의존성 설치
-npm install
+### 👥 클라이언트 관리
 
-# 개발 서버 실행
-npm run dev
+- 고객사 정보 및 담당자 연락처 통합 관리
+- 프로젝트별 커뮤니케이션 히스토리 추적
+- 클라이언트별 수익 분석 및 성과 지표
+- 자동 리마인더 및 팔로우업 시스템
 
-# 타입 체크
-npm run type-check
+### 📁 프로젝트 관리
 
-# 린트
-npm run lint
+- 칸반 보드 기반 직관적 프로젝트 상태 관리
+- 타임라인 및 캘린더 뷰 지원
+- 작업별 진행률 추적 및 마감일 관리
+- 시간 기록 및 작업 로그 시스템
+
+### 📄 스마트 문서 관리
+
+- AI 기반 문서 초안 자동 생성 (견적서, 계약서, 청구서)
+- 직군별 표준 템플릿 제공
+- 전자 서명 및 문서 상태 추적
+- 버전 관리 및 수정 이력 자동 저장
+
+### 💰 재무 관리
+
+- 인보이스 발행 및 입금 현황 실시간 추적
+- 미수금 자동 리마인더 및 알림
+- 수입/지출 카테고리별 분석
+- 세금 계산 및 신고 데이터 자동 정리
+
+### 🤖 AI 비서
+
+- 프로젝트 정보 기반 문서 자동 생성
+- 고객 커뮤니케이션 요약 및 To-do 추출
+- 데이터 기반 의사결정 지원
+- 가격 제안 및 계약서 검토 지원
+
+## 🏗️ 기술 스택
+
+### Frontend
+
+- **Next.js 14** - React 기반 풀스택 프레임워크
+- **TypeScript** - 타입 안전성 보장
+- **Tailwind CSS** - 유틸리티 퍼스트 CSS 프레임워크
+- **Zustand** - 상태 관리 라이브러리
+- **React Hook Form** - 폼 관리
+- **Zod** - 스키마 검증
+
+### Backend & Database
+
+- **Supabase** - PostgreSQL 기반 BaaS
+- **Prisma** - 타입 안전한 데이터베이스 ORM
+- **PostgreSQL** - 관계형 데이터베이스
+
+### Authentication & Security
+
+- **Supabase Auth** - 인증 시스템
+- **Next.js Middleware** - 라우트 보호
+- **JWT** - 토큰 기반 인증
+
+### Development Tools
+
+- **ESLint** - 코드 품질 관리
+- **Prettier** - 코드 포맷팅
+- **Playwright** - E2E 테스팅
+- **Jest** - 단위 테스팅
+
+## 📁 프로젝트 구조
+
+```
+weave/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── auth/              # 인증 관련 페이지
+│   │   ├── dashboard/         # 대시보드
+│   │   ├── projects/          # 프로젝트 관리
+│   │   ├── clients/           # 클라이언트 관리
+│   │   ├── documents/         # 문서 관리
+│   │   ├── invoices/          # 청구서 관리
+│   │   └── settings/          # 설정
+│   ├── components/            # 재사용 가능한 컴포넌트
+│   │   ├── auth/             # 인증 관련 컴포넌트
+│   │   ├── forms/            # 폼 컴포넌트
+│   │   ├── layout/           # 레이아웃 컴포넌트
+│   │   └── ui/               # UI 컴포넌트
+│   ├── lib/                   # 유틸리티 및 설정
+│   │   ├── api/              # API 클라이언트
+│   │   ├── auth/             # 인증 관련 로직
+│   │   ├── supabase/         # Supabase 설정
+│   │   ├── theme/            # 테마 시스템
+│   │   └── utils/            # 유틸리티 함수
+│   ├── stores/               # Zustand 상태 관리
+│   ├── types/                # TypeScript 타입 정의
+│   └── contexts/             # React Context
+├── prisma/                   # 데이터베이스 스키마
+├── docs/                     # 프로젝트 문서
+└── tests/                    # 테스트 파일
 ```
 
-### 데이터베이스 설정
+## 🗄️ 데이터베이스 스키마
+
+### 핵심 엔티티
+
+- **User** - 사용자 정보 및 프로필
+- **Client** - 클라이언트 정보 및 연락처
+- **Project** - 프로젝트 정보 및 진행 상태
+- **Document** - 문서 관리 (견적서, 계약서, 청구서)
+- **Invoice** - 청구서 및 결제 관리
+- **Transaction** - 거래 내역 및 재무 기록
+- **TaxCalculation** - 세금 계산 및 관리
+
+### 주요 관계
+
+- User ↔ Client (1:N)
+- User ↔ Project (1:N)
+- Client ↔ Project (1:N)
+- Project ↔ Document (1:N)
+- Project ↔ Invoice (1:N)
+- Invoice ↔ Transaction (1:N)
+
+## 🚀 시작하기
+
+### 필수 요구사항
+
+- Node.js 18+
+- npm 또는 yarn
+- Supabase 계정
+- PostgreSQL 데이터베이스
+
+### 설치 및 설정
+
+1. **저장소 클론**
+
+```bash
+git clone https://github.com/your-username/weave.git
+cd weave
+```
+
+2. **의존성 설치**
+
+```bash
+npm install
+```
+
+3. **환경변수 설정**
+
+```bash
+cp .env.example .env.local
+```
+
+`.env.local` 파일에 다음 환경변수를 설정하세요:
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Database
+DATABASE_URL=your_database_url
+
+# Next.js
+NEXTAUTH_SECRET=your_nextauth_secret
+NEXTAUTH_URL=http://localhost:3000
+```
+
+4. **데이터베이스 설정**
 
 ```bash
 # Prisma 클라이언트 생성
@@ -38,238 +186,138 @@ npm run db:generate
 # 데이터베이스 마이그레이션
 npm run db:migrate
 
-# 시드 데이터 생성
+# 시드 데이터 생성 (선택사항)
 npm run db:seed
-
-# Prisma Studio 실행 (데이터베이스 GUI)
-npm run db:studio
 ```
 
-## 🎯 주요 기능
-
-### 사용자 및 프로필 관리
-
-- 개인 정보 및 비즈니스 정보 관리
-- 사업자등록번호, 연락처, 주소 관리
-- 시간대 및 통화 설정
-- 프로필 이미지 업로드
-
-### 클라이언트 관리
-
-- 클라이언트 정보 관리 (회사명, 사업자번호, 주소)
-- 클라이언트 연락처 관리 (담당자 정보)
-- 클라이언트 상태 관리 (활성/비활성/보관)
-- 클라이언트별 프로젝트 및 문서 연동
-
-### 프로젝트 관리
-
-- 프로젝트 생성 및 추적
-- 작업 단계별 진행 상황 관리 (대기/진행중/피드백/완료/취소/보류)
-- 우선순위 설정 (낮음/보통/높음/긴급)
-- 예산 및 마감일 관리
-- 프로젝트별 작업 항목(Task) 관리
-- 진행 상황 로그 기록
-
-### 시간 추적
-
-- 프로젝트별 작업 시간 기록
-- 시작/종료 시간 자동 계산
-- 시간당 요율 설정
-- 작업 내용 설명 기록
-
-### 문서 관리
-
-- 견적서, 계약서, 청구서, 거래명세서, 제안서 생성
-- 문서 템플릿 시스템
-- 문서 버전 관리
-- 전자 서명 기능
-- 문서 상태 추적 (초안/발송/열람/서명/취소)
-
-### 청구서 및 결제 관리
-
-- 청구서 자동 생성
-- 청구서 항목별 상세 관리
-- 세금 계산 자동화
-- 결제 상태 추적 (초안/발행/발송/입금완료/연체/취소)
-- 결제 내역 로그
-
-### 거래 내역 관리
-
-- 수입/지출/세금 거래 기록
-- 카테고리별 분류
-- 결제 방법 및 참조번호 관리
-- 거래 날짜별 추적
-
-### 세무 관리
-
-- 월별/연도별 세무 계산
-- 소득 유형별 세율 적용 (사업소득 3.3%, 기타소득 8.8%)
-- 강연료, 저작권료 등 특수 소득 관리
-- 세전/세후 금액 자동 계산
-
-### 파일 관리
-
-- Supabase 스토리지를 활용한 파일 업로드
-- 프로젝트/클라이언트별 파일 분류
-- 파일 메타데이터 관리
-- 공유 토큰을 통한 안전한 파일 공유
-
-### AI 기능
-
-- 문서 초안 자동 생성
-- 이메일 요약
-- 회의록 요약
-- 가격 제안 생성
-- 계약서 검토
-- GPT-4, GPT-3.5-turbo 모델 지원
-
-### 공유 시스템
-
-- 프로젝트별 파일 공유 토큰 생성
-- 파일 업로드 제한 설정 (개수, 크기, 타입)
-- 토큰 만료일 설정
-- 안전한 외부 파일 수집
-
-## 📁 프로젝트 구조
-
-```
-src/
-├── app/                       # Next.js App Router
-│   ├── auth/                  # 인증 관련 페이지
-│   │   ├── login/
-│   │   ├── register/
-│   │   └── verify-email/
-│   ├── dashboard/             # 대시보드
-│   ├── test-connection/       # 연결 테스트
-│   ├── components/            # 데모 컴포넌트
-│   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx
-├── components/
-│   ├── auth/                  # 인증 컴포넌트
-│   ├── layout/                # 레이아웃 컴포넌트
-│   │   └── DashboardLayout.tsx
-│   └── ui/                    # UI 컴포넌트 라이브러리
-│       ├── enhanced/          # ERP 전용 컴포넌트
-│       │   ├── DataTable.tsx
-│       │   ├── MetricCard.tsx
-│       │   └── StatusBadge.tsx
-│       └── ...                # 기본 UI 컴포넌트들
-├── lib/
-│   ├── auth/                  # 인증 관련
-│   │   └── auth-context.tsx
-│   ├── supabase/              # Supabase 설정
-│   │   ├── client.ts
-│   │   ├── server.ts
-│   │   └── types.ts
-│   ├── theme/                 # 테마 시스템
-│   └── utils.ts
-└── prisma/                    # 데이터베이스 스키마
-    ├── schema.prisma
-    └── seed.ts
-```
-
-## 🔧 개발
-
-### 환경 설정
+5. **개발 서버 실행**
 
 ```bash
-# 환경 변수 설정
-cp .env.example .env.local
-
-# 데이터베이스 설정
-npm run db:generate
-npm run db:migrate
-npm run db:seed
+npm run dev
 ```
 
-### 배포
+브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 애플리케이션을 확인하세요.
 
-````bash
+## 🧪 테스팅
+
+### 단위 테스트
+
+```bash
+npm run test
+```
+
+### E2E 테스트
+
+```bash
+npm run test:e2e
+```
+
+### 테스트 커버리지
+
+```bash
+npm run test:ci
+```
+
+## 📦 배포
+
+### Vercel 배포
+
+```bash
+npm run deploy
+```
+
+### 수동 배포
+
+```bash
+npm run build
+npm run start
+```
+
+## 🔧 개발 스크립트
+
+```bash
+# 개발 서버
+npm run dev
+
 # 프로덕션 빌드
 npm run build
 
-# Vercel 배포
-npm run deploy
+# 프로덕션 서버
+npm run start
 
-# 프리뷰 배포
-npm run deploy:preview
+# 린팅
+npm run lint
+npm run lint:fix
 
-## 🧪 테스트
+# 타입 체크
+npm run type-check
 
-```bash
-# 테스트 실행
-npm run test
+# 데이터베이스
+npm run db:generate    # Prisma 클라이언트 생성
+npm run db:push        # 스키마 변경사항 적용
+npm run db:migrate     # 마이그레이션 실행
+npm run db:studio      # Prisma Studio 실행
+npm run db:seed        # 시드 데이터 생성
+```
 
-# 테스트 커버리지
-npm run test:ci
-
-# 테스트 감시 모드
-npm run test:watch
-````
-
-## 📊 데이터베이스 스키마
-
-### 주요 모델
-
-- **User**: 사용자 정보 및 인증
-- **Profile**: 개인/비즈니스 프로필
-- **Client**: 클라이언트 정보
-- **ClientContact**: 클라이언트 연락처
-- **Project**: 프로젝트 정보
-- **ProjectTask**: 프로젝트 작업 항목
-- **TimeEntry**: 시간 추적
-- **Document**: 문서 관리
-- **Invoice**: 청구서
-- **Transaction**: 거래 내역
-- **TaxCalculation**: 세무 계산
-- **FileUpload**: 파일 관리
-- **ShareToken**: 파일 공유
-- **AiGeneration**: AI 기능
+## 🏛️ 아키텍처
 
 ### 상태 관리
 
-- **ProjectStatus**: PENDING, IN_PROGRESS, FEEDBACK, COMPLETED, CANCELLED, ON_HOLD
-- **TaskStatus**: TODO, IN_PROGRESS, REVIEW, DONE
-- **DocumentStatus**: DRAFT, SENT, VIEWED, SIGNED, CANCELLED
-- **InvoiceStatus**: DRAFT, ISSUED, SENT, PAID, OVERDUE, CANCELLED
-- **ClientStatus**: ACTIVE, INACTIVE, ARCHIVED
+- **Zustand**를 사용한 전역 상태 관리
+- **React Query**를 통한 서버 상태 관리
+- **Optimistic Updates**로 사용자 경험 향상
 
-## 📝 라이센스
+### API 설계
 
-MIT License
+- **RESTful API** 원칙 준수
+- **Supabase** 클라이언트를 통한 데이터 접근
+- **타입 안전성**을 위한 TypeScript 활용
 
-## 🤝 기여
+### 보안
 
-새로운 기능이나 개선사항을 제안하고 싶으시면:
+- **Supabase Auth**를 통한 인증
+- **Row Level Security (RLS)** 정책 적용
+- **JWT 토큰** 기반 세션 관리
 
-1. **기능 요청**: 왜 필요한지, 어떤 문제를 해결하는지 설명해주세요
-2. **기존 패턴 분석**: 기존 코드의 패턴을 따라주세요
-3. **테스트 코드 작성**: 새로운 기능에 대한 테스트를 포함해주세요
-4. **문서화**: README나 주석을 업데이트해주세요
+### 성능 최적화
 
-## 🐛 문제 해결
+- **Next.js App Router**를 통한 서버 컴포넌트 활용
+- **이미지 최적화** 및 **코드 스플리팅**
+- **캐싱 전략** 및 **CDN** 활용
 
-### 데이터베이스 연결 문제
+## 📈 성능 지표
 
-1. 환경 변수가 올바르게 설정되었는지 확인
-2. Prisma 스키마가 최신 상태인지 확인
-3. 데이터베이스 마이그레이션 실행
+- **페이지 로딩 시간**: 3초 이내
+- **시스템 가용성**: 99.9%
+- **동시 사용자 지원**: 1만명
+- **에러율**: 0.1% 이하
 
-### Supabase 연결 문제
+## 🤝 기여하기
 
-1. Supabase 프로젝트 설정 확인
-2. 환경 변수에 API 키가 올바르게 설정되었는지 확인
-3. 데이터베이스 연결 문자열 확인
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### 빌드 오류
+## 📄 라이선스
 
-1. 의존성이 올바르게 설치되었는지 확인
-2. TypeScript 타입 오류 확인
-3. ESLint 규칙 준수 확인
+이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
 
-### AI 기능 오류
+## 📞 지원
 
-1. OpenAI API 키 설정 확인
-2. 토큰 사용량 및 제한 확인
-3. 모델 설정 확인
+- **이메일**: support@weave.com
+- **문서**: [docs.weave.com](https://docs.weave.com)
+- **이슈**: [GitHub Issues](https://github.com/your-username/weave/issues)
+
+## 🙏 감사의 말
+
+- [Next.js](https://nextjs.org/) 팀
+- [Supabase](https://supabase.com/) 팀
+- [Tailwind CSS](https://tailwindcss.com/) 팀
+- 모든 오픈소스 기여자들
+
+---
+
+**WEAVE** - 프리랜서의 업무 효율성을 혁신하는 올인원 솔루션

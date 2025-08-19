@@ -27,15 +27,21 @@ export const useTheme = () => {
 
 interface ThemeProviderProps {
   children: ReactNode;
+  defaultTheme?: ThemeType;
+  defaultPaletteId?: string;
 }
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [currentTheme, setCurrentTheme] = useState<ThemeType>("white");
-  const [selectedPaletteId, setSelectedPaletteId] = useState<string>("custom1");
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ 
+  children, 
+  defaultTheme = "white", 
+  defaultPaletteId = "custom1" 
+}) => {
+  const [currentTheme, setCurrentTheme] = useState<ThemeType>(defaultTheme);
+  const [selectedPaletteId, setSelectedPaletteId] = useState<string>(defaultPaletteId);
 
-  // 기본 색상 설정 (custom1 팔레트)
+  // 기본 색상 설정 (선택된 팔레트 ID 기준)
   const defaultColors = THEME_CONSTANTS.colorPalettes.find(
-    (p) => p.id === "custom1"
+    (p) => p.id === defaultPaletteId
   )?.colors || {
     primary: "#4ECDC4",
     secondary: "#45B7D1", 
