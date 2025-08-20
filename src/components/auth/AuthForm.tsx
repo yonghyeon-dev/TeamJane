@@ -31,22 +31,73 @@ export default function AuthForm({ mode }: AuthFormProps) {
     setLoading(true)
     setError('')
 
+    // 기본 검증
+    if (!email.trim() || !password.trim()) {
+      setError('이메일과 비밀번호를 모두 입력해주세요.')
+      setLoading(false)
+      return
+    }
+
+    if (mode === 'signup' && !name.trim()) {
+      setError('이름을 입력해주세요.')
+      setLoading(false)
+      return
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError('올바른 이메일 주소를 입력해주세요.')
+      setLoading(false)
+      return
+    }
+
+    // 비밀번호 최소 길이 검증
+    if (password.length < 6) {
+      setError('비밀번호는 6자 이상이어야 합니다.')
+      setLoading(false)
+      return
+    }
+
     try {
       if (mode === 'signin') {
+        console.log('로그인 시도:', { email })
         await signIn(email, password)
         router.push('/dashboard')
       } else {
-        if (!name.trim()) {
-          setError('이름을 입력해주세요.')
-          return
+        console.log('회원가입 시도:', { email, name })
+        const result = await signUp(email, password, name)
+        console.log('회원가입 결과:', result)
+        
+        // 회원가입 성공 시 이메일 인증 페이지로 이동
+        if (result && !result.error) {
+          router.push('/auth/verify-email')
         }
-        console.log('회원가입 폼 제출:', { email, name })
-        await signUp(email, password, name)
-        console.log('회원가입 성공, 인증 페이지로 이동')
-        router.push('/auth/verify-email')
       }
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : '오류가 발생했습니다.'
+      console.error('인증 오류:', err)
+      
+      let errorMessage = '오류가 발생했습니다.'
+      
+      if (err instanceof Error) {
+        // Supabase 에러 메시지 한국어화
+        if (err.message.includes('Invalid login credentials')) {
+          errorMessage = '이메일 또는 비밀번호가 일치하지 않습니다.'
+        } else if (err.message.includes('Email not confirmed')) {
+          errorMessage = '이메일 인증이 필요합니다. 이메일을 확인해주세요.'
+        } else if (err.message.includes('User already registered')) {
+          errorMessage = '이미 가입된 이메일입니다.'
+        } else if (err.message.includes('rate limit')) {
+          errorMessage = '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.'
+        } else if (err.message.includes('Password should be at least 6 characters')) {
+          errorMessage = '비밀번호는 6자 이상이어야 합니다.'
+        } else if (err.message.includes('Signup requires a valid password')) {
+          errorMessage = '유효한 비밀번호를 입력해주세요.'
+        } else {
+          errorMessage = err.message || '알 수 없는 오류가 발생했습니다.'
+        }
+      }
+      
       setError(errorMessage)
     } finally {
       setLoading(false)
@@ -98,6 +149,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
                       placeholder="이름을 입력하세요"
                       className="pl-10"
                       required={isSignUp}
+                      disabled={loading}
                     />
                   </div>
                 </div>
@@ -115,6 +167,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
                     placeholder="이메일을 입력하세요"
                     className="pl-10"
                     required
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -131,11 +184,14 @@ export default function AuthForm({ mode }: AuthFormProps) {
                     placeholder="비밀번호를 입력하세요"
                     className="pl-10 pr-10"
                     required
+                    disabled={loading}
+                    minLength={6}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    disabled={loading}
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -146,7 +202,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 </div>
                 {isSignUp && (
                   <p className="text-xs text-gray-500">
-                    8자 이상의 안전한 비밀번호를 사용하세요
+                    6자 이상의 안전한 비밀번호를 사용하세요
                   </p>
                 )}
               </div>
@@ -194,6 +250,15 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 >
                   비밀번호를 잊으셨나요?
                 </Link>
+              </div>
+            )}
+            
+            {/* 개발 환경에서만 표시되는 테스트 정보 */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                <p className="text-xs text-yellow-800">
+                  <strong>개발 모드:</strong> 실제 이메일 인증이 필요하지 않을 수 있습니다.
+                </p>
               </div>
             )}
           </CardContent>

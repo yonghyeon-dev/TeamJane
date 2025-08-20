@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "./";
+import Button from "./Button";
 import Image from "next/image";
 
 export interface NavbarProps {

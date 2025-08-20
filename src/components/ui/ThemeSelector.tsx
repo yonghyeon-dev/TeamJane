@@ -3,7 +3,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/lib/theme/ThemeContext";
-import { Button } from "./";
+import Button from "./Button";
 
 export interface ThemeSelectorProps {
   className?: string;

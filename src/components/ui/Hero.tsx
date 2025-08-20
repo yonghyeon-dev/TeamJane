@@ -3,7 +3,8 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/lib/theme/ThemeContext";
-import { Button, Typography } from "./";
+import Button from "./Button";
+import Typography from "./Typography";
 
 export interface HeroProps {
   title: string;

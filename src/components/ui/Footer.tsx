@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Typography } from "./";
+import Typography from "./Typography";
 import Image from "next/image";
 
 export interface FooterProps {

@@ -6,6 +6,8 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth/auth-context'
+import { useNotificationSelectors, initializeMockNotifications } from '@/stores/useNotificationStore'
+import { getUserDisplayInfo, formatTimeAgo, formatUserInfo, formatUserInfoVertical } from '@/lib/utils/user-display'
 import Button from '@/components/ui/Button'
 import {
   Home,
@@ -48,6 +50,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, signOut } = useAuth()
+  const { recentNotifications, unreadCount, markAsRead, markAllAsRead } = useNotificationSelectors()
+  const userDisplayInfo = getUserDisplayInfo(user)
+
+  // 목업 알림 데이터 초기화 (추후 API 연동시 제거)
+  useEffect(() => {
+    initializeMockNotifications()
+  }, [])
 
   const handleSignOut = async () => {
     try {
@@ -163,12 +172,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <User className="w-5 h-5 text-gray-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {user?.user_metadata?.name || user?.email?.split('@')[0] || '사용자'}
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {user?.email}
-                </p>
+                {formatUserInfoVertical(
+                  user, 
+                  true, 
+                  'text-sm font-medium text-gray-900 truncate',
+                  'text-xs text-gray-500 truncate'
+                )}
               </div>
             </div>
             <Button
@@ -222,40 +231,71 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   onClick={handleNotifications}
                 >
                   <Bell className="w-5 h-5" />
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[1.25rem] h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center px-1">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </Button>
                 
                 {/* Notifications Dropdown */}
                 {notificationsOpen && (
                   <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                    <div className="p-4 border-b border-gray-200">
+                    <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                       <h3 className="text-lg font-semibold text-gray-900">알림</h3>
+                      {unreadCount > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={markAllAsRead}
+                          className="text-xs text-blue-600 hover:text-blue-700"
+                        >
+                          모두 읽기
+                        </Button>
+                      )}
                     </div>
-                    <div className="p-4 space-y-3">
-                      <div className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">새 청구서 생성됨</p>
-                          <p className="text-sm text-gray-600">INV-20241201-001 청구서가 생성되었습니다.</p>
-                          <p className="text-xs text-gray-500 mt-1">5분 전</p>
+                    <div className="p-4 space-y-3 max-h-96 overflow-y-auto">
+                      {recentNotifications.length > 0 ? (
+                        recentNotifications.map((notification) => (
+                          <div 
+                            key={notification.id}
+                            className={`flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer ${
+                              !notification.isRead ? 'bg-blue-50' : ''
+                            }`}
+                            onClick={() => {
+                              markAsRead(notification.id)
+                              if (notification.actionUrl) {
+                                setNotificationsOpen(false)
+                                router.push(notification.actionUrl)
+                              }
+                            }}
+                          >
+                            <div className={`w-2 h-2 rounded-full mt-2 ${
+                              notification.type === 'success' ? 'bg-green-500' :
+                              notification.type === 'warning' ? 'bg-yellow-500' :
+                              notification.type === 'error' ? 'bg-red-500' :
+                              'bg-blue-500'
+                            } ${!notification.isRead ? 'ring-2 ring-offset-1 ring-current' : ''}`}></div>
+                            <div className="flex-1">
+                              <p className={`text-sm font-medium ${
+                                !notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                              }`}>
+                                {notification.title}
+                                {!notification.isRead && (
+                                  <span className="ml-2 w-2 h-2 bg-blue-500 rounded-full inline-block"></span>
+                                )}
+                              </p>
+                              <p className="text-sm text-gray-600 line-clamp-2">{notification.message}</p>
+                              <p className="text-xs text-gray-500 mt-1">{formatTimeAgo(notification.createdAt)}</p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <Bell className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                          <p className="text-sm text-gray-500">알림이 없습니다</p>
                         </div>
-                      </div>
-                      <div className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">프로젝트 완료</p>
-                          <p className="text-sm text-gray-600">웹사이트 리뉴얼 프로젝트가 완료되었습니다.</p>
-                          <p className="text-xs text-gray-500 mt-1">1시간 전</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg">
-                        <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">결제 알림</p>
-                          <p className="text-sm text-gray-600">청구서 결제 기한이 3일 남았습니다.</p>
-                          <p className="text-xs text-gray-500 mt-1">2시간 전</p>
-                        </div>
-                      </div>
+                      )}
                     </div>
                     <div className="p-4 border-t border-gray-200">
                       <Button 
@@ -279,9 +319,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
                   <User className="w-4 h-4 text-gray-600" />
                 </div>
-                <span className="hidden md:block text-sm font-medium text-gray-700">
-                  {user?.user_metadata?.name || '사용자'}
-                </span>
+                <div className="hidden md:block">
+                  {formatUserInfoVertical(
+                    user, 
+                    true, 
+                    'text-sm font-medium text-gray-700',
+                    'text-xs text-gray-500'
+                  )}
+                </div>
               </div>
             </div>
           </div>

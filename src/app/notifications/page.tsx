@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import { useNotificationSelectors, initializeMockNotifications } from '@/stores/useNotificationStore';
+import { formatTimeAgo } from '@/lib/utils/user-display';
 import { 
   Bell, 
   Search, 
@@ -20,97 +22,26 @@ import {
   Settings
 } from 'lucide-react';
 
-// 알림 타입 정의
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  category: 'invoice' | 'project' | 'client' | 'document' | 'system';
-  isRead: boolean;
-  createdAt: string;
-  actionUrl?: string;
-}
-
-// 임시 알림 데이터
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    title: '새 청구서 생성됨',
-    message: 'INV-20241201-001 청구서가 성공적으로 생성되었습니다.',
-    type: 'success',
-    category: 'invoice',
-    isRead: false,
-    createdAt: '2024-12-01T09:30:00Z',
-    actionUrl: '/invoices'
-  },
-  {
-    id: '2',
-    title: '프로젝트 완료',
-    message: '웹사이트 리뉴얼 프로젝트가 완료되었습니다.',
-    type: 'success',
-    category: 'project',
-    isRead: false,
-    createdAt: '2024-12-01T08:15:00Z',
-    actionUrl: '/projects'
-  },
-  {
-    id: '3',
-    title: '결제 알림',
-    message: 'ABC 컴퍼니 청구서 결제 기한이 3일 남았습니다.',
-    type: 'warning',
-    category: 'invoice',
-    isRead: true,
-    createdAt: '2024-12-01T07:00:00Z',
-    actionUrl: '/invoices'
-  },
-  {
-    id: '4',
-    title: '새 클라이언트 등록',
-    message: '홍길동님이 새 클라이언트로 등록되었습니다.',
-    type: 'info',
-    category: 'client',
-    isRead: true,
-    createdAt: '2024-11-30T16:45:00Z',
-    actionUrl: '/clients'
-  },
-  {
-    id: '5',
-    title: '문서 업로드 완료',
-    message: '계약서_ABC컴퍼니.pdf 파일이 업로드되었습니다.',
-    type: 'success',
-    category: 'document',
-    isRead: false,
-    createdAt: '2024-11-30T14:20:00Z',
-    actionUrl: '/documents'
-  },
-  {
-    id: '6',
-    title: '시스템 업데이트',
-    message: '새로운 기능이 추가되었습니다. 업데이트 내용을 확인하세요.',
-    type: 'info',
-    category: 'system',
-    isRead: true,
-    createdAt: '2024-11-30T10:00:00Z'
-  },
-  {
-    id: '7',
-    title: '연체 알림',
-    message: 'DEF 컴퍼니 청구서가 7일 연체되었습니다.',
-    type: 'error',
-    category: 'invoice',
-    isRead: false,
-    createdAt: '2024-11-29T09:00:00Z',
-    actionUrl: '/invoices'
-  }
-];
+// 알림 타입은 이제 stores에서 import
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const { 
+    notifications, 
+    unreadCount, 
+    markAsRead, 
+    markAllAsRead, 
+    deleteNotification 
+  } = useNotificationSelectors();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+
+  // 목업 데이터 초기화 (추후 API 연동시 제거)
+  useEffect(() => {
+    initializeMockNotifications();
+  }, []);
 
   // 필터링된 알림 목록
   const filteredNotifications = notifications.filter(notification => {
@@ -123,29 +54,10 @@ export default function NotificationsPage() {
     return matchesSearch && matchesType && matchesCategory && matchesReadStatus;
   });
 
-  // 알림 읽음 표시
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id ? { ...notification, isRead: true } : notification
-      )
-    );
-  };
-
-  // 모든 알림 읽음 표시
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, isRead: true }))
-    );
-  };
-
-  // 알림 삭제
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
-  };
+  // 스토어에서 제공되는 액션들 사용
 
   // 아이콘 렌더링
-  const getIcon = (type: Notification['type'], category: Notification['category']) => {
+  const getIcon = (type: string, category: string) => {
     if (category === 'invoice') return <DollarSign className="w-5 h-5" />;
     if (category === 'project') return <Calendar className="w-5 h-5" />;
     if (category === 'client') return <Users className="w-5 h-5" />;
@@ -161,7 +73,7 @@ export default function NotificationsPage() {
   };
 
   // 색상 클래스
-  const getColorClasses = (type: Notification['type']) => {
+  const getColorClasses = (type: string) => {
     switch (type) {
       case 'success': return 'text-green-600 bg-green-50 border-green-200';
       case 'warning': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
@@ -169,28 +81,6 @@ export default function NotificationsPage() {
       default: return 'text-blue-600 bg-blue-50 border-blue-200';
     }
   };
-
-  // 시간 포맷팅
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffMinutes < 60) {
-      return `${diffMinutes}분 전`;
-    } else if (diffHours < 24) {
-      return `${diffHours}시간 전`;
-    } else if (diffDays < 7) {
-      return `${diffDays}일 전`;
-    } else {
-      return date.toLocaleDateString('ko-KR');
-    }
-  };
-
-  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
     <DashboardLayout>
@@ -306,7 +196,7 @@ export default function NotificationsPage() {
                             )}
                           </h3>
                           <p className="text-gray-600 mt-1">{notification.message}</p>
-                          <p className="text-sm text-gray-500 mt-2">{formatTime(notification.createdAt)}</p>
+                          <p className="text-sm text-gray-500 mt-2">{formatTimeAgo(notification.createdAt)}</p>
                         </div>
 
                         {/* Actions */}

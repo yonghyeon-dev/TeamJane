@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClientThemeProvider } from "@/lib/theme/ClientThemeProvider";
@@ -13,7 +13,15 @@ const inter = Inter({
   display: "swap",
 });
 
+// Next.js 13+ viewport export
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#4ECDC4',
+}
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: "WEAVE - 프리랜서를 위한 올인원 워크스페이스",
   description: "흩어진 당신의 업무를 하나로 엮다. 프리랜서 맞춤형 ERP 시스템",
   keywords: [
@@ -32,7 +40,6 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico",
     apple: "/favicon.ico",
   },
-  viewport: "width=device-width, initial-scale=1",
   robots: "index, follow",
   openGraph: {
     type: "website",
@@ -55,9 +62,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${inter.variable} light`}>
-      <head>
-        <meta name="theme-color" content="#4ECDC4" />
-      </head>
+      <head />
       <body className={`${inter.className} antialiased font-primary bg-white`}>
         <ReactQueryProvider>
           <ErrorProvider>
