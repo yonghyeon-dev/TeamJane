@@ -1,0 +1,11 @@
+{
+  "cursorRules": {
+    "enabled": true,
+    "file": ".cursorrules",
+    "autoLoad": true
+  },
+  "aiRules": {
+    "enabled": true,
+    "file": ".cursorrules"
+  }
+}

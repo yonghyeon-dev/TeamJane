@@ -1,0 +1,5 @@
+{
+  "cursor.rules.enabled": true,
+  "cursor.ai.enableRules": true,
+  "cursor.rules.path": ".cursorrules"
+}

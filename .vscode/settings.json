@@ -13,5 +13,9 @@
   ],
   "editor.quickSuggestions": {
     "strings": true
-  }
+  },
+  "cursor.rules.enabled": true,
+  "cursor.rules.path": ".cursorrules",
+  "cursor.ai.enableRules": true,
+  "cursor.ai.rulesFile": ".cursorrules"
 }
