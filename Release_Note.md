@@ -324,6 +324,57 @@
   });
   ```
 
+#### ISSUE-012: Cursor Rules 설정 파일 구현 ✅ 해결완료
+
+- **발생일**: 2025-08-21
+- **해결일**: 2025-08-21
+- **증상**: Cursor IDE에서 프로젝트 규칙과 AI 규칙이 자동으로 로드되지 않아 개발 환경 일관성 부족
+- **위치**: cursor-rules.json 설정 파일
+- **원인**: Cursor IDE 설정 파일이 프로젝트 루트에 없어 규칙 자동 로드 기능 미작동
+- **근본원인**: Cursor IDE 설정 표준화 부재
+- **대책**:
+  1. ✅ cursor-rules.json 파일 생성
+  2. ✅ cursorRules 설정 (enabled: true, file: ".cursorrules", autoLoad: true)
+  3. ✅ aiRules 설정 (enabled: true, file: ".cursorrules")
+- **우선순위**: 🟠 Medium
+- **버전**: V1.0.1_250821_REV012
+- **테스트케이스**:
+  ```javascript
+  it("should automatically load cursor rules on project open", async () => {
+    // Given: cursor-rules.json file exists in project root
+    // When: Cursor IDE opens the project
+    // Then: Rules should be automatically loaded and applied
+    expect(cursorRulesConfig.enabled).toBe(true);
+    expect(cursorRulesConfig.autoLoad).toBe(true);
+  });
+  ```
+
+#### ISSUE-013: 소셜 로그인 전용 시스템 구현 ✅ 해결완료
+
+- **발생일**: 2025-08-21
+- **해결일**: 2025-08-21
+- **증상**: 기존 이메일/비밀번호 로그인 시스템이 복잡하고 보안 취약점이 있어 사용자 경험 저하
+- **위치**: src/components/auth/AuthForm.tsx 및 인증 관련 컴포넌트
+- **원인**: 전통적인 이메일/비밀번호 인증 방식의 복잡성과 보안 위험
+- **근본원인**: 현대적인 소셜 로그인 표준 미적용
+- **대책**:
+  1. ✅ Google OAuth 로그인 시스템 구현
+  2. ✅ Kakao OAuth 로그인 시스템 구현
+  3. ✅ 소셜 로그인 전용 UI/UX 설계
+  4. ✅ 관련 문서 및 가이드 업데이트
+- **우선순위**: 🟡 High
+- **버전**: V1.0.1_250821_REV012
+- **테스트케이스**:
+  ```javascript
+  it("should authenticate users through social login providers", async () => {
+    // Given: User clicks on social login button
+    // When: OAuth flow is initiated
+    // Then: User should be successfully authenticated
+    await page.click('[data-testid="google-login-button"]');
+    expect(authenticationStatus).toBe("authenticated");
+  });
+  ```
+
 ---
 
 ## 🧪 테스트 전략
