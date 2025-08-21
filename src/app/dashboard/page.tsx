@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import StatusBadge from '@/components/ui/enhanced/StatusBadge'
 import { useDashboardData } from '@/lib/react-query/hooks/useDashboard'
+import { useTodaySchedules } from '@/lib/react-query/hooks/useSchedules'
 import {
   BarChart3,
   TrendingUp,
@@ -91,6 +92,9 @@ export default function DashboardPage() {
     refetch
   } = useDashboardData()
   
+  // 오늘의 일정 가져오기
+  const { data: todaySchedulesData, isLoading: scheduleLoading, error: scheduleError } = useTodaySchedules()
+  
   // 최근 5개 프로젝트 (생성일 기준 정렬)
   const recentProjects = projects
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -110,7 +114,7 @@ export default function DashboardPage() {
 
   const handleTimeTracking = () => {
     // 시간 기록 기능은 향후 구현
-    alert('시간 기록 기능은 곧 출시됩니다!')
+    router.push('/schedules')
   }
 
   const handleViewAllProjects = () => {
@@ -242,29 +246,69 @@ export default function DashboardPage() {
                 <h3 className="text-lg font-semibold text-gray-900">오늘의 일정</h3>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">클라이언트 미팅</p>
-                      <p className="text-xs text-gray-500">오후 2:00 - ABC Corp</p>
-                    </div>
+                {scheduleLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <LoaderIcon className="w-4 h-4 animate-spin text-teal-600" />
+                    <span className="ml-2 text-sm text-gray-600">로딩 중...</span>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">프로젝트 검토</p>
-                      <p className="text-xs text-gray-500">오후 4:00 - XYZ 모바일 앱</p>
-                    </div>
+                ) : scheduleError ? (
+                  <div className="text-center py-4">
+                    <span className="text-sm text-red-600">일정을 불러올 수 없습니다.</span>
                   </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">견적서 발송</p>
-                      <p className="text-xs text-gray-500">오후 6:00 - DEF Ltd</p>
-                    </div>
+                ) : todaySchedulesData?.data && todaySchedulesData.data.length > 0 ? (
+                  <div className="space-y-4">
+                    {todaySchedulesData.data.slice(0, 3).map((schedule) => {
+                      const startTime = new Date(schedule.start_time).toLocaleTimeString('ko-KR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                      })
+                      
+                      const colorMap = {
+                        blue: 'bg-blue-500',
+                        green: 'bg-green-500',
+                        yellow: 'bg-yellow-500',
+                        red: 'bg-red-500',
+                        purple: 'bg-purple-500',
+                        orange: 'bg-orange-500'
+                      }
+                      
+                      return (
+                        <div key={schedule.id} className="flex items-start space-x-3">
+                          <div className={`w-2 h-2 ${colorMap[schedule.color]} rounded-full mt-2`}></div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900">{schedule.title}</p>
+                            <p className="text-xs text-gray-500">
+                              {startTime}
+                              {schedule.client?.name && ` - ${schedule.client.name}`}
+                              {schedule.project?.name && ` - ${schedule.project.name}`}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                    {todaySchedulesData.data.length > 3 && (
+                      <div className="text-center pt-2">
+                        <Button variant="ghost" size="sm" onClick={() => router.push('/schedules')}>
+                          {todaySchedulesData.data.length - 3}개 더 보기
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Calendar className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">오늘 예정된 일정이 없습니다.</p>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="mt-2"
+                      onClick={() => router.push('/schedules')}
+                    >
+                      일정 추가하기
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

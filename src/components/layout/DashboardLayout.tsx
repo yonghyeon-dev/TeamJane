@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth/auth-context'
-import { useNotificationSelectors, initializeMockNotifications } from '@/stores/useNotificationStore'
+import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/lib/react-query/hooks/useNotifications'
 import { getUserDisplayInfo, formatTimeAgo, formatUserInfo, formatUserInfoVertical } from '@/lib/utils/user-display'
 import Button from '@/components/ui/Button'
 import {
@@ -50,13 +50,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, signOut } = useAuth()
-  const { recentNotifications, unreadCount, markAsRead, markAllAsRead } = useNotificationSelectors()
   const userDisplayInfo = getUserDisplayInfo(user)
-
-  // 목업 알림 데이터 초기화 (추후 API 연동시 제거)
-  useEffect(() => {
-    initializeMockNotifications()
-  }, [])
+  
+  // 실제 알림 데이터 가져오기
+  const { data: notificationsData } = useNotifications({ limit: 10 })
+  const { data: unreadCount = 0 } = useUnreadNotificationsCount()
+  const markAsReadMutation = useMarkNotificationAsRead()
+  const markAllAsReadMutation = useMarkAllNotificationsAsRead()
+  
+  const recentNotifications = notificationsData?.data || []
 
   const handleSignOut = async () => {
     try {
@@ -247,10 +249,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={markAllAsRead}
+                          onClick={() => markAllAsReadMutation.mutate()}
                           className="text-xs text-blue-600 hover:text-blue-700"
+                          disabled={markAllAsReadMutation.isPending}
                         >
-                          모두 읽기
+                          {markAllAsReadMutation.isPending ? '처리 중...' : '모두 읽기'}
                         </Button>
                       )}
                     </div>
@@ -260,13 +263,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                           <div 
                             key={notification.id}
                             className={`flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer ${
-                              !notification.isRead ? 'bg-blue-50' : ''
+                              !notification.is_read ? 'bg-blue-50' : ''
                             }`}
                             onClick={() => {
-                              markAsRead(notification.id)
-                              if (notification.actionUrl) {
+                              if (!notification.is_read) {
+                                markAsReadMutation.mutate(notification.id)
+                              }
+                              if (notification.action_url) {
                                 setNotificationsOpen(false)
-                                router.push(notification.actionUrl)
+                                router.push(notification.action_url)
                               }
                             }}
                           >
@@ -275,18 +280,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                               notification.type === 'warning' ? 'bg-yellow-500' :
                               notification.type === 'error' ? 'bg-red-500' :
                               'bg-blue-500'
-                            } ${!notification.isRead ? 'ring-2 ring-offset-1 ring-current' : ''}`}></div>
+                            } ${!notification.is_read ? 'ring-2 ring-offset-1 ring-current' : ''}`}></div>
                             <div className="flex-1">
                               <p className={`text-sm font-medium ${
-                                !notification.isRead ? 'text-gray-900' : 'text-gray-700'
+                                !notification.is_read ? 'text-gray-900' : 'text-gray-700'
                               }`}>
                                 {notification.title}
-                                {!notification.isRead && (
+                                {!notification.is_read && (
                                   <span className="ml-2 w-2 h-2 bg-blue-500 rounded-full inline-block"></span>
                                 )}
                               </p>
                               <p className="text-sm text-gray-600 line-clamp-2">{notification.message}</p>
-                              <p className="text-xs text-gray-500 mt-1">{formatTimeAgo(notification.createdAt)}</p>
+                              <p className="text-xs text-gray-500 mt-1">{formatTimeAgo(notification.created_at)}</p>
                             </div>
                           </div>
                         ))

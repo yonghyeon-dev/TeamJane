@@ -95,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: {
             name: name,
           },
+          captcha: undefined, // Captcha 비활성화 (개발 환경)
         },
       });
 

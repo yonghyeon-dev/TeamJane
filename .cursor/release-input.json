@@ -1,33 +1,24 @@
 {
   "task": "Release_Note.md 업데이트",
-  "issue_number": 1,
-  "version": "V1.0.1_250820_REV001",
+  "issue_number": 9,
+  "version": "V1.0.1_250820_REV010",
   "date": "2025-08-20",
   "commits": [
-    "- V250820",
-    "- V250819_Deploy_1",
-    "- V250819_deploy",
-    "- V250819_1",
-    "- V250819",
-    "- V250818",
-    "- DELgitpage",
-    "- Gitpage",
-    "- UI_ing",
-    "- main"
+    "- V1.0.1_250820_REV009"
   ],
   "modified_files": [
     ".corrsor/rules/.cursorrules",
-    ".eslintrc.json",
-    ".gitignore",
-    ".vscode/css_custom_data.json",
-    ".vscode/extensions.json",
+    ".cursor/release-input.json",
+    ".cursor/rules/.cursorrules",
+    ".cursor/rules/releasenote.mdc",
+    ".cursor/settings.json",
+    ".cursorrules",
     ".vscode/settings.json",
-    "CLAUDE.md",
-    "OPERATIONS_GUIDE.md",
-    "PERFORMANCE_OPTIMIZATION.md",
-    "PRODUCTION_DEPLOYMENT.md"
+    "GPT.md",
+    "Release_Note.md",
+    "cursor-rules.json"
   ],
-  "commit_range": "133c3ce7b31f91d03660ce3248fb7d0394edd457..HEAD",
-  "commit_count": 10,
+  "commit_range": "2e0b41afd46bcf139ae713fefffb062334f11c12..HEAD",
+  "commit_count": 1,
   "instructions": "Release_Note.md에 새 이슈 항목을 추가하세요. .cursor/rules/.cursorrules 파일의 템플릿을 정확히 따라주세요."
 }

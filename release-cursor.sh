@@ -8,11 +8,24 @@ RN_FILE="Release_Note.md"
 PROMPT_OUT=".cursor/release-input.json"
 STATE_FILE=".git/.last_release_sha"
 FALLBACK_MODE=false
+AUTO_COMMIT=false
+AUTO_TAG=false
+VALIDATE=false
 
 # 옵션 파싱
 while [[ $# -gt 0 ]]; do
   case $1 in
     --fallback) FALLBACK_MODE=true; shift ;;
+    --auto-commit) AUTO_COMMIT=true; shift ;;
+    --tag) AUTO_TAG=true; shift ;;
+    --validate) VALIDATE=true; shift ;;
+    --help) 
+      echo "사용법: $0 [옵션]"
+      echo "  --fallback     기본 템플릿만 생성"
+      echo "  --auto-commit  릴리즈노트 생성 후 자동 커밋&푸시"
+      echo "  --tag          버전 태그 자동 생성"
+      echo "  --validate     커밋 전 검증 실행"
+      exit 0 ;;
     *) echo "Unknown option: $1"; exit 1 ;;
   esac
 done
@@ -112,7 +125,59 @@ echo ""
 echo "💰 예상 토큰 절약: 127.5K tokens/month → 0 tokens"
 echo "⚡ Cursor Auto 모델 사용으로 100% 로컬 처리"
 
-# 6) 상태 저장
+# 6) Cursor 실행 대기 (자동 커밋 모드에서)
+if [[ "$AUTO_COMMIT" == true ]]; then
+  echo ""
+  echo "🤖 자동 커밋 모드: Cursor 실행 대기 중..."
+  echo "📋 다음 명령을 Cursor Composer에 입력하세요:"
+  echo "   릴리즈노트 업데이트"
+  echo ""
+  echo "⏳ Cursor 작업 완료 후 Enter를 눌러주세요..."
+  read -r
+  
+  # 7) 릴리즈노트 변경 확인 및 커밋
+  if git diff --quiet "$RN_FILE"; then
+    echo "❌ Release_Note.md가 변경되지 않았습니다. 자동 커밋 중단."
+    exit 1
+  fi
+  
+  # 8) 검증 실행 (선택적)
+  if [[ "$VALIDATE" == true ]]; then
+    echo "🔍 릴리즈노트 검증 실행..."
+    if ! ./scripts/validate-release-note.sh; then
+      echo "❌ 검증 실패. 자동 커밋 중단."
+      exit 1
+    fi
+  fi
+  
+  # 9) 자동 커밋 실행
+  version="V1.0.1_$(date +%y%m%d)_REV$rev"
+  echo "📝 자동 커밋 실행: $version"
+  
+  git add "$RN_FILE"
+  git commit -m "$version
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+  
+  # 10) 태그 생성 (선택적)
+  if [[ "$AUTO_TAG" == true ]]; then
+    echo "🏷️ 버전 태그 생성: $version"
+    git tag -a "$version" -m "Release $version"
+  fi
+  
+  # 11) 자동 푸시
+  echo "🚀 자동 푸시 실행..."
+  git push
+  if [[ "$AUTO_TAG" == true ]]; then
+    git push --tags
+  fi
+  
+  echo "✅ 자동 커밋&푸시 완료: $version"
+fi
+
+# 12) 상태 저장
 current_head=$(git rev-parse HEAD)
 echo "$current_head" > "$STATE_FILE"
 echo "💾 다음 릴리즈를 위한 상태 저장: $current_head"
