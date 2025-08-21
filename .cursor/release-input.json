@@ -1,24 +1,24 @@
 {
   "task": "Release_Note.md 업데이트",
   "issue_number": 9,
-  "version": "V1.0.1_250820_REV010",
-  "date": "2025-08-20",
+  "version": "V1.0.1_250821_REV010",
+  "date": "2025-08-21",
   "commits": [
-    "- V1.0.1_250820_REV009"
+    "- ISSUE-011: 커서 릴리즈노트 자동화 시스템 테스트"
   ],
   "modified_files": [
-    ".corrsor/rules/.cursorrules",
     ".cursor/release-input.json",
-    ".cursor/rules/.cursorrules",
-    ".cursor/rules/releasenote.mdc",
-    ".cursor/settings.json",
-    ".cursorrules",
-    ".vscode/settings.json",
-    "GPT.md",
-    "Release_Note.md",
-    "cursor-rules.json"
+    "SUPABASE_SETUP_GUIDE.md",
+    "release-cursor.sh",
+    "security-fix.sql",
+    "src/app/dashboard/page.tsx",
+    "src/components/layout/DashboardLayout.tsx",
+    "src/lib/auth/auth-context.tsx",
+    "src/lib/react-query/hooks/useNotifications.ts",
+    "src/lib/react-query/hooks/useSchedules.ts",
+    "test.txt"
   ],
-  "commit_range": "2e0b41afd46bcf139ae713fefffb062334f11c12..HEAD",
+  "commit_range": "342c1e7e971ccbe17824a36ec0fd75c1e03aee22..HEAD",
   "commit_count": 1,
   "instructions": "Release_Note.md에 새 이슈 항목을 추가하세요. .cursor/rules/.cursorrules 파일의 템플릿을 정확히 따라주세요."
 }
