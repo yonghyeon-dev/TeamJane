@@ -20,9 +20,16 @@ export async function middleware(req: NextRequest) {
     // 인증이 필요한 경로들
     const protectedPaths = ['/dashboard', '/projects', '/clients', '/documents', '/invoices', '/settings']
     const authPaths = ['/auth/login', '/auth/register']
+    const callbackPaths = ['/auth/callback'] // 인증 콜백 경로
     
     const isProtectedPath = protectedPaths.some(path => req.nextUrl.pathname.startsWith(path))
     const isAuthPath = authPaths.some(path => req.nextUrl.pathname.startsWith(path))
+    const isCallbackPath = callbackPaths.some(path => req.nextUrl.pathname.startsWith(path))
+
+    // 콜백 경로는 인증 처리를 위해 항상 허용
+    if (isCallbackPath) {
+      return res
+    }
 
     // 인증이 필요한 페이지에 비로그인 사용자가 접근
     if (isProtectedPath && !session) {

@@ -7,8 +7,10 @@ import { createClient } from "@/lib/supabase/client";
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
+  // 소셜 인증만 지원
+  signInWithGoogle: () => Promise<{ provider: string; url: string } | void>;
+  signInWithKakao: () => Promise<{ provider: string; url: string } | void>;
+  // 공통
   signOut: () => Promise<void>;
 }
 
@@ -53,79 +55,74 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+
+  const signInWithGoogle = async () => {
     if (!supabase) {
       throw new Error("Supabase not configured");
     }
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // 환경별 URL 설정
+      const isDevMode = process.env.NODE_ENV === 'development'
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+        (isDevMode ? 'http://localhost:3000' : 'https://weave-erp.vercel.app')
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${baseUrl}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
       });
-      
+
       if (error) {
-        console.error('로그인 오류:', error);
+        console.error('Google OAuth 오류:', error);
         throw error;
       }
-      
-      console.log('로그인 성공:', { user: data.user?.email });
+
+      console.log('Google OAuth 요청 성공');
       return data;
     } catch (error) {
-      console.error('로그인 실패:', error);
+      console.error('Google 로그인 실패:', error);
       throw error;
     }
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signInWithKakao = async () => {
     if (!supabase) {
-      throw new Error(
-        "Supabase가 설정되지 않았습니다. 환경변수를 확인해주세요."
-      );
+      throw new Error("Supabase not configured");
     }
 
-    console.log("회원가입 시도:", { email, name });
-    console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
-
     try {
-      const { error, data } = await supabase.auth.signUp({
-        email,
-        password,
+      // 환경별 URL 설정
+      const isDevMode = process.env.NODE_ENV === 'development'
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+        (isDevMode ? 'http://localhost:3001' : 'https://weave-erp.vercel.app')
+
+      // 카카오톡 OAuth는 Supabase 공식 지원
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'kakao',
         options: {
-          data: {
-            name: name,
-          },
-          captcha: undefined, // Captcha 비활성화 (개발 환경)
+          redirectTo: `${baseUrl}/auth/callback`,
         },
       });
 
-      console.log("Supabase 응답:", { error, data });
-
       if (error) {
-        console.error("Supabase 오류:", error);
-        throw new Error(error.message || "회원가입 중 오류가 발생했습니다.");
+        console.error('카카오톡 OAuth 오류:', error);
+        throw error;
       }
 
-      // 사용자 프로필 생성은 일단 주석 처리 (Prisma 테이블이 아직 생성되지 않았을 수 있음)
-      // if (data.user) {
-      //   const { error: profileError } = await supabase
-      //     .from('profiles')
-      //     .insert([
-      //       {
-      //         user_id: data.user.id,
-      //         name: name,
-      //       },
-      //     ])
-      //
-      //   if (profileError) throw profileError
-      // }
-
+      console.log('카카오톡 OAuth 요청 성공');
       return data;
-    } catch (err) {
-      console.error("회원가입 전체 오류:", err);
-      throw err;
+    } catch (error) {
+      console.error('카카오톡 로그인 실패:', error);
+      throw error;
     }
   };
+
 
   const signOut = async () => {
     if (!supabase) {
@@ -141,8 +138,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         loading,
-        signIn,
-        signUp,
+        signInWithGoogle,
+        signInWithKakao,
         signOut,
       }}
     >

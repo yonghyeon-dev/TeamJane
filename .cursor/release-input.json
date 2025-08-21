@@ -1,24 +1,16 @@
 {
   "task": "Release_Note.md 업데이트",
   "issue_number": 9,
-  "version": "V1.0.1_250821_REV010",
+  "version": "V1.0.1_250821_REV011",
   "date": "2025-08-21",
   "commits": [
-    "- ISSUE-011: 커서 릴리즈노트 자동화 시스템 테스트"
+    "- Clean up test file"
   ],
   "modified_files": [
     ".cursor/release-input.json",
-    "SUPABASE_SETUP_GUIDE.md",
-    "release-cursor.sh",
-    "security-fix.sql",
-    "src/app/dashboard/page.tsx",
-    "src/components/layout/DashboardLayout.tsx",
-    "src/lib/auth/auth-context.tsx",
-    "src/lib/react-query/hooks/useNotifications.ts",
-    "src/lib/react-query/hooks/useSchedules.ts",
     "test.txt"
   ],
-  "commit_range": "342c1e7e971ccbe17824a36ec0fd75c1e03aee22..HEAD",
+  "commit_range": "a71e8c93c1551106a6ff7ff170668441a5eb260a..HEAD",
   "commit_count": 1,
   "instructions": "Release_Note.md에 새 이슈 항목을 추가하세요. .cursor/rules/.cursorrules 파일의 템플릿을 정확히 따라주세요."
 }

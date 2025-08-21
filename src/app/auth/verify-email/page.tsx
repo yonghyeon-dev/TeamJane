@@ -48,6 +48,7 @@ export default function VerifyEmailPage() {
                 <li>• 스팸 폴더를 확인해보세요</li>
                 <li>• 이메일 주소를 정확히 입력했는지 확인해보세요</li>
                 <li>• 몇 분 후에 다시 시도해보세요</li>
+                <li>• 소셜 로그인을 이용하면 이메일 인증이 불필요합니다</li>
               </ul>
             </div>
 
@@ -73,6 +74,8 @@ export default function VerifyEmailPage() {
         <div className="text-center">
           <p className="text-xs text-gray-500">
             이메일 인증 후 자동으로 로그인됩니다.
+            <br />
+            소셜 로그인을 이용하면 즉시 이용 가능합니다.
           </p>
         </div>
       </div>

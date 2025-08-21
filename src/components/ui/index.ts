@@ -18,6 +18,8 @@ export {
 } from "./Carousel";
 export { default as ColorSelector } from "./ColorSelector";
 export { default as Footer } from "./Footer";
+export { default as GoogleSignInButton } from "./GoogleSignInButton";
+export { default as KakaoSignInButton } from "./KakaoSignInButton";
 export { default as Hero } from "./Hero";
 export { default as Input } from "./Input";
 export { default as Navbar } from "./Navbar";
@@ -57,3 +59,4 @@ export type {
 } from "./Footer";
 export type { HeroProps, HeroAction } from "./Hero";
 export type { ThemeSelectorProps } from "./ThemeSelector";
+export type { KakaoSignInButtonProps } from "./KakaoSignInButton";
