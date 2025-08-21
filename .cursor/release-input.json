@@ -1,16 +1,24 @@
 {
   "task": "Release_Note.md 업데이트",
-  "issue_number": 9,
-  "version": "V1.0.1_250821_REV011",
+  "issue_number": 10,
+  "version": "V1.0.1_250821_REV012",
   "date": "2025-08-21",
   "commits": [
-    "- Clean up test file"
+    "- feat: 소셜 로그인 전용 시스템 구현"
   ],
   "modified_files": [
     ".cursor/release-input.json",
-    "test.txt"
+    ".playwright-mcp/kakao-oauth-login-page.png",
+    ".playwright-mcp/social-only-login-system.png",
+    "AUTH_SYSTEM.md",
+    "DEPLOYMENT.md",
+    "ENVIRONMENT_VARIABLES.md",
+    "GOOGLE_OAUTH_SETUP.md",
+    "OAUTH_SETUP_GUIDE.md",
+    "Release_Note.md",
+    "SECURITY.md"
   ],
-  "commit_range": "a71e8c93c1551106a6ff7ff170668441a5eb260a..HEAD",
+  "commit_range": "da21775bf74a0d09b1e5f59273043aed19b75569..HEAD",
   "commit_count": 1,
   "instructions": "Release_Note.md에 새 이슈 항목을 추가하세요. .cursor/rules/.cursorrules 파일의 템플릿을 정확히 따라주세요."
 }

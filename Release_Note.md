@@ -357,21 +357,62 @@
 - **위치**: src/components/auth/AuthForm.tsx 및 인증 관련 컴포넌트
 - **원인**: 전통적인 이메일/비밀번호 인증 방식의 복잡성과 보안 위험
 - **근본원인**: 현대적인 소셜 로그인 표준 미적용
-- **대책**:
-  1. ✅ Google OAuth 로그인 시스템 구현
-  2. ✅ Kakao OAuth 로그인 시스템 구현
-  3. ✅ 소셜 로그인 전용 UI/UX 설계
-  4. ✅ 관련 문서 및 가이드 업데이트
+- **변경내역**:
+  1. ✅ **이메일 인증 완전 제거**: 
+     - `signIn`, `signUp` 메서드 삭제
+     - `verify-email` 페이지 제거
+     - 관련 UI 컴포넌트 정리
+  2. ✅ **Google OAuth 로그인 구현**:
+     - Supabase OAuth 프로바이더 설정
+     - GoogleSignInButton 컴포넌트 생성
+     - `/auth/callback` 라우트 구현
+  3. ✅ **Kakao OAuth 로그인 구현**:
+     - Naver OAuth를 Kakao로 대체
+     - KakaoSignInButton 컴포넌트 생성
+     - Supabase 지원 프로바이더 활용
+  4. ✅ **소셜 전용 UI/UX 개선**:
+     - 탭 기반 로그인/회원가입 제거
+     - 소셜 로그인 버튼만 표시
+     - 간소화된 인터페이스
+  5. ✅ **문서화 및 가이드**:
+     - `OAUTH_SETUP_GUIDE.md` 작성
+     - `ENVIRONMENT_VARIABLES.md` 작성
+     - `AUTH_SYSTEM.md` 업데이트
+     - `DEPLOYMENT.md` 작성
+     - `SECURITY.md` 작성
+- **영향 범위**: 인증 시스템 전체, 사용자 경험 개선
 - **우선순위**: 🟡 High
 - **버전**: V1.0.1_250821_REV012
 - **테스트케이스**:
   ```javascript
-  it("should authenticate users through social login providers", async () => {
-    // Given: User clicks on social login button
-    // When: OAuth flow is initiated
-    // Then: User should be successfully authenticated
-    await page.click('[data-testid="google-login-button"]');
-    expect(authenticationStatus).toBe("authenticated");
+  // Google 로그인 테스트
+  it("should authenticate users through Google OAuth", async () => {
+    // Given: User is on login page
+    await page.goto("/login");
+    // When: User clicks Google login button
+    await page.click('[data-testid="google-signin-button"]');
+    // Then: User is redirected to Google OAuth
+    await expect(page.url()).toContain("accounts.google.com");
+  });
+
+  // Kakao 로그인 테스트
+  it("should authenticate users through Kakao OAuth", async () => {
+    // Given: User is on login page
+    await page.goto("/login");
+    // When: User clicks Kakao login button
+    await page.click('[data-testid="kakao-signin-button"]');
+    // Then: User is redirected to Kakao OAuth
+    await expect(page.url()).toContain("kauth.kakao.com");
+  });
+
+  // 이메일 로그인 제거 확인
+  it("should not display email login form", async () => {
+    // Given: User is on login page
+    await page.goto("/login");
+    // When: Page loads
+    // Then: Email/password fields should not exist
+    await expect(page.locator('input[type="email"]')).not.toBeVisible();
+    await expect(page.locator('input[type="password"]')).not.toBeVisible();
   });
   ```
 
