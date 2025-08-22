@@ -102,11 +102,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
         (isDevMode ? 'http://localhost:3001' : 'https://weave-erp.vercel.app')
 
-      // 카카오톡 OAuth는 Supabase 공식 지원
+      // 카카오톡 OAuth는 Supabase 공식 지원 (이메일 없이 프로필만)
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'kakao',
         options: {
           redirectTo: `${baseUrl}/auth/callback`,
+          scopes: 'profile_nickname', // 이메일 제외, 닉네임만 요청
         },
       });
 
