@@ -1,19 +1,17 @@
 {
   "task": "Release_Note.md 업데이트",
-  "issue_number": 12,
-  "version": "V1.0.1_250821_REV013",
-  "date": "2025-08-21",
+  "issue_number": 13,
+  "version": "V1.0.1_250822_REV016",
+  "date": "2025-08-22",
   "commits": [
-    "- feat: 소셜 로그인 전용 시스템 구현"
+    "- fix: Prisma 스키마를 Supabase 데이터베이스 구조에 맞게 수정",
+    "- docs: Claude Code 작업 체크리스트 및 고정 포트 설정 추가"
   ],
   "modified_files": [
-    ".cursor/release-input.json",
-    "RELEASE_AUTOMATION_GUIDE.md",
-    "Release_Note.md",
-    "complete-release.sh",
-    "release-cursor.sh"
+    "CLAUDE.md",
+    "prisma/schema.prisma"
   ],
-  "commit_range": "264c4674d454110f4ba7b482712e3f41afd79152..HEAD",
-  "commit_count": 1,
+  "commit_range": "fff9dd716c91fcd324b5db12428bb3b0120840eb..HEAD",
+  "commit_count": 2,
   "instructions": "Release_Note.md에 새 이슈 항목을 추가하세요. .cursor/rules/.cursorrules 파일의 템플릿을 정확히 따라주세요."
 }

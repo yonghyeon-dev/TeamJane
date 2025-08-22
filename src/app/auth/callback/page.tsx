@@ -59,6 +59,49 @@ export default function AuthCallbackPage() {
         
         if (session?.user) {
           console.log('인증 완료:', session.user.email)
+          setStatus('사용자 정보 설정 중...')
+          
+          // 사용자 프로필 자동 생성 또는 업데이트
+          try {
+            const { error: upsertError } = await supabase
+              .from('users')
+              .upsert({
+                id: session.user.id,
+                email: session.user.email!,
+                auth_id: session.user.id,
+              }, { 
+                onConflict: 'auth_id',
+                ignoreDuplicates: false 
+              })
+
+            if (upsertError) {
+              console.warn('사용자 정보 생성/업데이트 실패:', upsertError)
+            } else {
+              console.log('사용자 정보 생성/업데이트 완료')
+            }
+
+            // 프로필 자동 생성 또는 업데이트
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .upsert({
+                user_id: session.user.id,
+                name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              }, { 
+                onConflict: 'user_id',
+                ignoreDuplicates: false 
+              })
+
+            if (profileError) {
+              console.warn('프로필 생성/업데이트 실패:', profileError)
+            } else {
+              console.log('프로필 생성/업데이트 완료')
+            }
+          } catch (profileSetupError) {
+            console.error('프로필 설정 중 오류:', profileSetupError)
+          }
+          
           setStatus('대시보드로 이동 중...')
           
           // 운영환경에서 추가 검증 대기
