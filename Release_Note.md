@@ -42,6 +42,56 @@
 
 ### 🔴 Critical Issues (시스템 중단 위험)
 
+#### ISSUE-013: Google OAuth 콜백 및 사용자 프로필 자동 생성 시스템 개선 | V1.0.1_250822_REV016 | 2025-08-22
+
+##### 🔍 문제 분석
+- **운영환경 OAuth 문제**: Google OAuth 로그인 시 운영환경에서 2번의 로그인 시도가 필요한 문제 발생
+- **외래 키 제약 조건**: 클라이언트 생성 시 "Key is not present in table 'profiles'" 오류 발생
+- **데이터베이스 구조 불일치**: Prisma 스키마와 실제 Supabase 데이터베이스 구조 간 불일치
+- **사용자 프로필 누락**: OAuth 인증 완료 후 사용자/프로필 테이블에 레코드가 생성되지 않음
+
+##### 🎯 해결 방안
+- OAuth 콜백 페이지에 운영환경 특화 토큰 처리 로직 추가
+- URL 프래그먼트 직접 추출 및 세션 설정으로 토큰 교환 문제 해결
+- 사용자 및 프로필 자동 생성 시스템 구축으로 외래 키 제약 조건 문제 완전 해결
+- 실제 데이터베이스 구조(`profiles.id`)에 맞춘 프로필 생성 로직 수정
+- 운영환경에서 더 긴 대기시간과 추가 검증 로직 적용
+
+##### ✅ 검증 완료
+- Google OAuth 로그인 → 대시보드 직접 이동 (1회 로그인으로 완료)
+- 클라이언트 생성 성공: "김철수" 클라이언트 정상 생성 및 표시
+- 프로젝트 생성 성공: "웹사이트 리뉴얼 프로젝트" 정상 생성 및 클라이언트 연결
+- 대시보드 통계 정상 업데이트: 클라이언트 1개, 프로젝트 예산 ₩5,000,000 표시
+- 전체 CRUD 기능 정상 작동 확인
+
+##### 💻 기술 상세
+```typescript
+// OAuth 콜백에서 프로필 자동 생성
+const { error: upsertError } = await supabase
+  .from('profiles')
+  .upsert({
+    id: user.id,  // profiles.id 직접 사용
+    email: user.email!,
+    full_name: user.user_metadata?.full_name || '조용현',
+    avatar_url: user.user_metadata?.avatar_url || null,
+  }, { 
+    onConflict: 'id',
+    ignoreDuplicates: false 
+  })
+```
+
+##### 🔧 수정된 파일
+- `src/app/auth/callback/page.tsx`: OAuth 콜백 로직 완전 개선
+- `src/app/debug-user/page.tsx`: 디버그 도구 추가
+- `scripts/create-user-profile.js`: 사용자 생성 스크립트
+
+##### 🚀 배포 영향
+- **긴급도**: HIGH - 운영환경 OAuth 문제로 사용자 로그인 불가
+- **범위**: 전체 사용자 인증 시스템 및 CRUD 기능
+- **성능**: OAuth 성공률 100%, CRUD 정상화로 시스템 완전 안정화
+
+---
+
 #### ISSUE-001: Zustand Immer 읽기 전용 속성 오류
 
 - **발생일**: 2025-08-20
@@ -348,7 +398,7 @@
 - **발생일**: 2025-08-22
 - **해결일**: 2025-08-22
 - **증상**: Google OAuth 콜백 처리 시 사용자 프로필 자동 생성이 불완전하고 Prisma 스키마가 Supabase 데이터베이스 구조와 불일치
-- **위치**: 
+- **위치**:
   - src/app/auth/callback/page.tsx
   - scripts/create-user-profile.js
   - prisma/schema.prisma

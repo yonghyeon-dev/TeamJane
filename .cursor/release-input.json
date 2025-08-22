@@ -4,14 +4,19 @@
   "version": "V1.0.1_250822_REV016",
   "date": "2025-08-22",
   "commits": [
+    "- fix: Google OAuth 콜백 및 사용자 프로필 자동 생성 시스템 개선",
     "- fix: Prisma 스키마를 Supabase 데이터베이스 구조에 맞게 수정",
     "- docs: Claude Code 작업 체크리스트 및 고정 포트 설정 추가"
   ],
   "modified_files": [
+    ".cursor/release-input.json",
     "CLAUDE.md",
-    "prisma/schema.prisma"
+    "prisma/schema.prisma",
+    "scripts/create-user-profile.js",
+    "src/app/auth/callback/page.tsx",
+    "src/app/debug-user/page.tsx"
   ],
   "commit_range": "fff9dd716c91fcd324b5db12428bb3b0120840eb..HEAD",
-  "commit_count": 2,
+  "commit_count": 3,
   "instructions": "Release_Note.md에 새 이슈 항목을 추가하세요. .cursor/rules/.cursorrules 파일의 템플릿을 정확히 따라주세요."
 }
