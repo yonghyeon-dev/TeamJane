@@ -12,8 +12,8 @@ Weave는 커스터마이징 가능한 테마 시스템을 가진 React UI 컴포
 # 의존성 설치
 npm install
 
-# 개발 서버 실행
-npm run dev
+# 개발 서버 실행 (3001 포트 고정)
+PORT=3001 npm run dev
 
 # 프로덕션 빌드
 npm run build
@@ -24,6 +24,13 @@ npm run lint
 # 타입 체크 실행
 npm run type-check
 ```
+
+## 개발 환경 설정
+
+### 포트 설정
+- **개발 서버 포트**: 3001 (고정)
+- **테스트 서버**: 필요 시 3002 포트 사용
+- **프로덕션**: https://weave-erp.vercel.app
 
 ## 아키텍처 개요
 
@@ -144,6 +151,23 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 3. 터미널에서 Enter로 완료
 
 현재 버전: V1.0.1_YYMMDD_REV###
+```
+
+## Claude Code 작업 체크리스트
+
+**매 작업 시작 전 반드시 확인:**
+1. ✅ **포트 확인**: 개발 서버는 반드시 3001 포트 사용
+2. ✅ **자동화 안내**: 커밋 후 릴리즈노트 자동화 스크립트 실행 안내
+3. ✅ **메모리 참조**: CLAUDE.md 내용을 작업 전후에 참조
+4. ✅ **워크플로우 준수**: 커밋 메시지 형식 및 자동화 프로세스 따르기
+
+**필수 실행 명령어:**
+```bash
+# 개발 서버 (3001 포트 고정)
+PORT=3001 npm run dev
+
+# 작업 완료 후 자동화
+./release-cursor.sh --auto-commit
 ```
 
 ## 테마 시스템 사용법
