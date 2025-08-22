@@ -13,11 +13,7 @@ export async function middleware(req: NextRequest) {
   try {
     const supabase = createMiddlewareClient({ req, res })
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    // 인증이 필요한 경로들
+    // 경로 분류
     const protectedPaths = ['/dashboard', '/projects', '/clients', '/documents', '/invoices', '/settings']
     const authPaths = ['/auth/login', '/auth/register']
     const callbackPaths = ['/auth/callback'] // 인증 콜백 경로
@@ -26,16 +22,50 @@ export async function middleware(req: NextRequest) {
     const isAuthPath = authPaths.some(path => req.nextUrl.pathname.startsWith(path))
     const isCallbackPath = callbackPaths.some(path => req.nextUrl.pathname.startsWith(path))
 
-    // 콜백 경로는 인증 처리를 위해 항상 허용
+    // 콜백 경로는 인증 처리를 위해 항상 허용 (OAuth 토큰 교환 중)
     if (isCallbackPath) {
       return res
     }
 
-    // 인증이 필요한 페이지에 비로그인 사용자가 접근
+    // 세션 가져오기
+    let session = null
+    try {
+      const { data } = await supabase.auth.getSession()
+      session = data.session
+    } catch (sessionError) {
+      console.warn('Middleware: 세션 조회 오류:', sessionError)
+      
+      // 운영환경에서 세션 오류 시 재시도
+      if (process.env.NODE_ENV === 'production') {
+        try {
+          await new Promise(resolve => setTimeout(resolve, 100))
+          const { data: retryData } = await supabase.auth.getSession()
+          session = retryData.session
+        } catch (retryError) {
+          console.warn('Middleware: 세션 재시도 실패:', retryError)
+        }
+      }
+    }
+
+    // 보호된 경로 접근 검증
     if (isProtectedPath && !session) {
-      const redirectUrl = new URL('/auth/login', req.url)
-      redirectUrl.searchParams.set('redirect', req.nextUrl.pathname)
-      return NextResponse.redirect(redirectUrl)
+      // 운영환경에서 세션 부재 시 한 번 더 확인 (OAuth 직후 지연 대응)
+      if (process.env.NODE_ENV === 'production') {
+        try {
+          await new Promise(resolve => setTimeout(resolve, 200))
+          const { data: finalData } = await supabase.auth.getSession()
+          session = finalData.session
+        } catch (finalError) {
+          console.warn('Middleware: 최종 세션 확인 실패:', finalError)
+        }
+      }
+      
+      // 여전히 세션이 없으면 로그인 페이지로 리다이렉트
+      if (!session) {
+        const redirectUrl = new URL('/auth/login', req.url)
+        redirectUrl.searchParams.set('redirect', req.nextUrl.pathname)
+        return NextResponse.redirect(redirectUrl)
+      }
     }
 
     // 로그인된 사용자가 인증 페이지에 접근
@@ -43,7 +73,7 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard', req.url))
     }
 
-    // 루트 경로 리다이렉트
+    // 루트 경로에서 로그인된 사용자는 대시보드로 리다이렉트
     if (req.nextUrl.pathname === '/' && session) {
       return NextResponse.redirect(new URL('/dashboard', req.url))
     }
@@ -51,11 +81,12 @@ export async function middleware(req: NextRequest) {
     return res
   } catch (error) {
     // 인증 처리 중 오류 발생 시 안전한 처리
-    if (process.env.NODE_ENV === 'development') {
+    const logError = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production'
+    if (logError) {
       console.error('Middleware error:', error)
     }
     
-    // 보호된 경로에서 오류 발생 시 로그인 페이지로 리다이렉트
+    // 보호된 경로에서 오류 발생 시에만 로그인 페이지로 리다이렉트
     const protectedPaths = ['/dashboard', '/projects', '/clients', '/documents', '/invoices', '/settings']
     const isProtectedPath = protectedPaths.some(path => req.nextUrl.pathname.startsWith(path))
     
@@ -66,6 +97,7 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
     
+    // 보호되지 않은 경로는 그대로 진행
     return res
   }
 }

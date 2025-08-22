@@ -29,6 +29,7 @@ model User {
   file_uploads    FileUpload[]
   ai_generations  AiGeneration[]
   share_tokens    ShareToken[]
+  schedules       Schedule[]
   
   @@map("users")
 }
@@ -73,6 +74,7 @@ model Client {
   invoices        Invoice[]
   file_uploads    FileUpload[]
   ai_generations  AiGeneration[]
+  schedules       Schedule[]
   
   @@map("clients")
   @@index([user_id])
@@ -131,6 +133,7 @@ model Project {
   status_logs     ProjectStatusLog[]
   share_tokens    ShareToken[]
   ai_generations  AiGeneration[]
+  schedules       Schedule[]
   
   @@map("projects")
   @@index([user_id])
@@ -203,6 +206,13 @@ enum TaskPriority {
   HIGH
 }
 
+enum ScheduleStatus {
+  SCHEDULED     // 예정됨
+  IN_PROGRESS   // 진행 중
+  COMPLETED     // 완료됨
+  CANCELLED     // 취소됨
+}
+
 // ===== 시간 추적 =====
 model TimeEntry {
   id              String    @id @default(cuid())
@@ -220,6 +230,32 @@ model TimeEntry {
   
   @@map("time_entries")
   @@index([project_id])
+}
+
+// ===== 일정 관리 =====
+model Schedule {
+  id          String         @id @default(cuid())
+  user_id     String
+  client_id   String?
+  project_id  String?
+  title       String
+  description String?
+  start_time  DateTime
+  end_time    DateTime?
+  status      ScheduleStatus @default(SCHEDULED)
+  color       String         @default("blue") // blue, green, yellow, red, purple, orange
+  created_at  DateTime       @default(now())
+  updated_at  DateTime       @updatedAt
+  
+  // 관계
+  user        User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  client      Client?        @relation(fields: [client_id], references: [id], onDelete: SetNull)
+  project     Project?       @relation(fields: [project_id], references: [id], onDelete: SetNull)
+  
+  @@map("schedules")
+  @@index([user_id])
+  @@index([start_time])
+  @@index([status])
 }
 
 // ===== 문서 관리 =====
