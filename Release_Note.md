@@ -343,6 +343,37 @@
   });
   ```
 
+#### ISSUE-015: Google OAuth 콜백 및 사용자 프로필 자동 생성 시스템 개선 ✅ 해결완료
+
+- **발생일**: 2025-08-22
+- **해결일**: 2025-08-22
+- **증상**: Google OAuth 콜백 처리 시 사용자 프로필 자동 생성이 불완전하고 Prisma 스키마가 Supabase 데이터베이스 구조와 불일치
+- **위치**: 
+  - src/app/auth/callback/page.tsx
+  - scripts/create-user-profile.js
+  - prisma/schema.prisma
+- **원인**: OAuth 콜백 처리 로직 미완성 및 Prisma 스키마 동기화 부족
+- **근본원인**: 데이터베이스 스키마 관리 및 사용자 프로필 생성 자동화 부족
+- **대책**:
+  1. ✅ Google OAuth 콜백 처리 로직 완성
+  2. ✅ 사용자 프로필 자동 생성 스크립트 개선
+  3. ✅ Prisma 스키마를 Supabase 데이터베이스 구조에 맞게 수정
+  4. ✅ Claude Code 작업 체크리스트 및 고정 포트 설정 추가
+- **우선순위**: 🟡 High
+- **버전**: V1.0.1_250822_REV016
+- **테스트케이스**:
+  ```javascript
+  it("should automatically create user profile after Google OAuth callback", async () => {
+    // Given: User completes Google OAuth flow
+    // When: OAuth callback is processed
+    // Then: User profile should be automatically created in database
+    await page.goto("/auth/callback?code=test_code");
+    const userProfile = await getUserProfileFromDatabase(userId);
+    expect(userProfile).toBeDefined();
+    expect(userProfile.email).toBe("user@example.com");
+  });
+  ```
+
 ### 🟢 Low Priority Issues (마이너 개선)
 
 #### ISSUE-006: Playwright 테스트 Strict Mode 위반
