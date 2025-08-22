@@ -7,7 +7,7 @@
 
 ---
 
-## V1.0.1_250820 (현재 개발 버전: V1.0.1_250821_REV010)
+## V1.0.1_250822 (현재 개발 버전: V1.0.1_250822_REV013)
 
 ### 🚀 주요 개선사항
 
@@ -17,6 +17,8 @@
 - 성능 최적화 및 에러 제거 (85% 성능 향상)
 - 인증 시스템 오류 처리 강화
 - Zustand + Immer 읽기 전용 속성 오류 해결
+- **Kakao OAuth 제거 및 Google OAuth 단일화** (V1.0.1_250822_REV013)
+- **운영/개발 환경 완전 분리 구현** (V1.0.1_250822_REV013)
 
 ---
 
@@ -260,6 +262,44 @@
     expect(hasReact).toBe(true);
   });
   ```
+
+#### ISSUE-013: Kakao OAuth 제거 및 Google OAuth 단일화 ✅ 해결완료
+
+- **발생일**: 2025-08-22
+- **해결일**: 2025-08-22
+- **증상**: Kakao OAuth KOE205 오류 지속, 이메일 권한 문제
+- **위치**: 
+  - `src/components/ui/KakaoSignInButton.tsx` (삭제)
+  - `src/lib/auth/auth-context.tsx`
+  - `src/components/auth/AuthForm.tsx`
+- **원인**: Kakao 개발자 계정 이메일 권한 부재 (사업자 등록 필요)
+- **근본원인**: 개인 개발자 계정 제한사항
+- **대책**: 
+  - Kakao OAuth 완전 제거
+  - Google OAuth만 사용하도록 단순화
+  - 추후 사업자 등록 후 재구현 예정
+- **우선순위**: 🟡 High
+- **버전**: V1.0.1_250822_REV013
+- **테스트케이스**: Google OAuth 단독 동작 확인
+
+#### ISSUE-014: 운영/개발 환경 완전 분리 구현 ✅ 해결완료
+
+- **발생일**: 2025-08-22
+- **해결일**: 2025-08-22
+- **증상**: 운영과 개발 환경이 혼재되어 보안 위험 존재
+- **위치**: 
+  - `.env.development`, `.env.production`
+  - Google OAuth 설정
+  - Supabase 프로젝트 설정
+- **원인**: 환경 분리 아키텍처 미구현
+- **근본원인**: 초기 설계 시 환경 분리 고려 부족
+- **대책**: 
+  - 개발: localhost:3000 + 개발 Supabase (fsumnnfbywndjegrvtku)
+  - 운영: weave-erp.vercel.app + 운영 Supabase (nmwvuxfhyroxczfsrgdn)
+  - Google OAuth 클라이언트 완전 분리
+- **우선순위**: 🔴 Critical (보안)
+- **버전**: V1.0.1_250822_REV013
+- **테스트케이스**: 환경별 독립 동작 확인
 
 ### 🟢 Low Priority Issues (마이너 개선)
 
