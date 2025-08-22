@@ -11,22 +11,33 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // URL에서 인증 토큰 처리
+        console.log('OAuth 콜백 처리 시작')
+        
+        // URL 해시에서 토큰 교환 처리
         const { data, error } = await supabase.auth.getSession()
         
         if (error) {
           console.error('인증 콜백 오류:', error)
-          router.push('/auth/login?error=callback_error')
+          // Supabase는 자동으로 URL의 code를 처리하므로 잠시 대기
+          setTimeout(() => {
+            router.push('/auth/login?error=callback_error')
+          }, 2000)
           return
         }
 
         if (data.session) {
           console.log('인증 완료:', data.session.user.email)
-          // 성공적으로 인증된 경우 대시보드로 이동
           router.push('/dashboard')
         } else {
-          // 세션이 없는 경우 로그인 페이지로 이동
-          router.push('/auth/login')
+          // 토큰 교환이 아직 진행중일 수 있으므로 잠시 대기 후 재시도
+          setTimeout(async () => {
+            const { data: retryData } = await supabase.auth.getSession()
+            if (retryData.session) {
+              router.push('/dashboard')
+            } else {
+              router.push('/auth/login')
+            }
+          }, 1000)
         }
       } catch (err) {
         console.error('콜백 처리 중 오류:', err)

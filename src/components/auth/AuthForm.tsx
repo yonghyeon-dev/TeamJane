@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader } from '@/components/ui/Card'
 import { GoogleSignInButton } from '@/components/ui'
-import KakaoSignInButton from '@/components/ui/KakaoSignInButton'
 import { useAuth } from '@/lib/auth/auth-context'
 import { Alert, AlertDescription } from '@/components/ui/Alert'
 import { LogIn, UserPlus } from 'lucide-react'
@@ -18,7 +17,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   
-  const { signInWithGoogle, signInWithKakao } = useAuth()
+  const { signInWithGoogle } = useAuth()
   const router = useRouter()
 
   const handleGoogleSignIn = async () => {
@@ -54,28 +53,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
     }
   }
 
-  const handleKakaoSignIn = async () => {
-    try {
-      setLoading(true)
-      setError('')
-      
-      console.log('카카오톡 OAuth 로그인 시도')
-      await signInWithKakao()
-      
-    } catch (err: unknown) {
-      console.error('카카오톡 OAuth 오류:', err)
-      
-      let errorMessage = '카카오톡 로그인 중 오류가 발생했습니다.'
-      
-      if (err instanceof Error) {
-        errorMessage = err.message || '카카오톡 로그인 중 알 수 없는 오류가 발생했습니다.'
-      }
-      
-      setError(errorMessage)
-    } finally {
-      setLoading(false)
-    }
-  }
 
 
   const isSignUp = mode === 'signup'
@@ -124,12 +101,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 text={isSignUp ? "Google로 계정 만들기" : "Google로 로그인"}
               />
 
-              <KakaoSignInButton
-                disabled={loading}
-                className="w-full"
-              >
-                {isSignUp ? "카카오톡으로 계정 만들기" : "카카오톡으로 로그인"}
-              </KakaoSignInButton>
 
               <div className="text-center space-y-2">
                 <p className="text-sm text-gray-600">

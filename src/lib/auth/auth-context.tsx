@@ -7,9 +7,8 @@ import { createClient } from "@/lib/supabase/client";
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  // 소셜 인증만 지원
+  // 소셜 인증 (Google만 지원)
   signInWithGoogle: () => Promise<{ provider: string; url: string } | void>;
-  signInWithKakao: () => Promise<{ provider: string; url: string } | void>;
   // 공통
   signOut: () => Promise<void>;
 }
@@ -91,38 +90,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signInWithKakao = async () => {
-    if (!supabase) {
-      throw new Error("Supabase not configured");
-    }
-
-    try {
-      // 환경별 URL 설정
-      const isDevMode = process.env.NODE_ENV === 'development'
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
-        (isDevMode ? 'http://localhost:3001' : 'https://weave-erp.vercel.app')
-
-      // 카카오톡 OAuth는 Supabase 공식 지원 (이메일 없이 프로필만)
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'kakao',
-        options: {
-          redirectTo: `${baseUrl}/auth/callback`,
-          scopes: 'profile_nickname', // 이메일 제외, 닉네임만 요청
-        },
-      });
-
-      if (error) {
-        console.error('카카오톡 OAuth 오류:', error);
-        throw error;
-      }
-
-      console.log('카카오톡 OAuth 요청 성공');
-      return data;
-    } catch (error) {
-      console.error('카카오톡 로그인 실패:', error);
-      throw error;
-    }
-  };
 
 
   const signOut = async () => {
@@ -140,7 +107,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         loading,
         signInWithGoogle,
-        signInWithKakao,
         signOut,
       }}
     >
